@@ -15,8 +15,35 @@
 
   <body>
     <section class="hero">
+      <div class="hero__background"></div>
+      <div class="hero__scene">
+        <img src="public/images/hero/hero_iceberg.png" alt="Iceberg" class="hero__iceberg floating-slow"/>
+        <img src="public/images/hero/hero_ship_large.png" alt="Titanic" class="hero__ship-large floating-medium"/>
+        <div class="hero__small-ship-wrapper">
+          <img src="public/images/hero/hero_ship_small.png" alt="Small ship" class="hero__ship-small"/>
+        </div>
+        <img src="public/images/hero/hero_wave_dark_l.png" alt="" class="hero__wave hero__wave--back"/>
+        <img src="public/images/hero/hero_wave_light_l.png" alt="" class="hero__wave hero__wave--middle"/>
+        <img src="public/images/hero/hero_wave_dark_s.png" alt="" class="hero__wave hero__wave--front"/>
+        <img src="public/images/hero/hero_wave_light_s.png" alt="" class="hero__wave hero__wave--front2"/>
+        <img src="public/images/hero/hero_leo.png" alt="Leo passenger" class="hero__character hero__character--leo floating-fast"/>
+        <img src="public/images/hero/hero_kate.png" alt="Kate passenger" class="hero__character hero__character--kate floating-fast"/>
+        <img src="public/images/hero/bird_ph1.png" alt="Seagull" class="hero__bird" id="hero-bird"/>
+        <div class="hero__snow-layer" id="snow-layer"></div>
+      </div>
 
+      <div class="hero__content">
+        <h1 class="hero__title">
+          Would <span class="hero__title-highlight">YOU</span> Survive the Titanic?
+        </h1>
+        <button class="hero__cta" id="hero-cta">
+          CHECK MY SURVIVAL CHANCES
+        </button>
+      </div>
+
+      <audio id="hero-audio" src="public/audio/hero_soundtrack.mp3"></audio>
     </section>
-  <script src="script.ts"></script>
+    <script src="script.ts" defer></script>
   </body>
+
 </html>
