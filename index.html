@@ -14,6 +14,20 @@
 </head>
 
 <body>
+<div class="start-screen" id="start-screen">
+  <div class="start-screen__content">
+    <h1 class="start-screen__title">
+      Would <span class="start-screen__highlight">YOU</span> Survive the Titanic?
+    </h1>
+    <p class="start-screen__subtitle">
+      An interactive experience with real historical data
+    </p>
+    <button class="start-screen__button" id="start-button">
+      START EXPERIENCE
+    </button>
+  </div>
+</div>
+
 <section class="hero">
   <div class="hero__sky"></div>
 
@@ -30,6 +44,24 @@
       <img src="src/public/images/hero/hero_ship_bg.png" alt="Background ship" class="hero__bg-ship"/>
     </div>
   </div>
+
+  <div class="hero__scene">
+    <img src="src/public/images/hero/hero_ship_large.png" alt="Titanic" class="hero__ship-large floating-medium"/>
+    <img src="src/public/images/hero/hero_leo.png" alt="Leo passenger" class="hero__character hero__character--leo floating-fast"/>
+    <img src="src/public/images/hero/hero_kate.png" alt="Kate passenger" class="hero__character hero__character--kate floating-fast"/>
+    <div class="hero__snow-layer" id="snow-layer"></div>
+  </div>
+
+  <div class="hero__content">
+    <h1 class="hero__title">
+      Would <span class="hero__title-highlight">YOU</span> Survive the Titanic?
+    </h1>
+    <button class="hero__cta" id="hero-cta">
+      CHECK MY SURVIVAL CHANCES
+    </button>
+  </div>
+
+  <audio id="hero-audio" src="src/public/audio/hero_soundtrack.mp3"></audio>
 </section>
 
 <script src="script.js"></script>
