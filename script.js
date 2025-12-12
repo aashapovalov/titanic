@@ -165,13 +165,15 @@ function startSnowfall() {
 }
 // Initialize passenger state
 var passengerState = {
-    port: null,
+    port: 'southampton', // Default to Southampton for background
     age: 30, // Default age from slider
     gender: null,
     ticketClass: null,
     travelWithFamily: false,
     familySize: null
 };
+// Track last rendered character to avoid unnecessary re-renders
+var lastRenderedCharacter = null;
 // Port background images
 var PORT_BACKGROUNDS = {
     southampton: 'src/public/images/search/ports/southampton.png',
@@ -253,12 +255,11 @@ function updatePreviewBackground() {
 }
 /**
  * Update character in preview
+ * Only re-renders if character asset path has changed
  */
 function updatePreviewCharacter() {
     if (!previewCharacterLayer)
         return;
-    // Clear existing character
-    previewCharacterLayer.innerHTML = '';
     // Only show character if all required fields are filled
     if (isPassengerComplete(passengerState)) {
         var characterPath = getCharacterAsset({
@@ -266,6 +267,13 @@ function updatePreviewCharacter() {
             age: passengerState.age,
             ticketClass: passengerState.ticketClass
         });
+        // Only update if character has changed
+        if (characterPath === lastRenderedCharacter) {
+            return; // Character hasn't changed, skip re-render
+        }
+        lastRenderedCharacter = characterPath;
+        // Clear existing character
+        previewCharacterLayer.innerHTML = '';
         var character_1 = document.createElement('img');
         character_1.className = 'search__character';
         character_1.src = characterPath;
@@ -280,6 +288,13 @@ function updatePreviewCharacter() {
         setTimeout(function () {
             character_1.classList.add('search__character--visible');
         }, 50);
+    }
+    else {
+        // Clear character if profile incomplete
+        if (lastRenderedCharacter !== null) {
+            previewCharacterLayer.innerHTML = '';
+            lastRenderedCharacter = null;
+        }
     }
 }
 /**
@@ -369,6 +384,11 @@ function handleFamilyCheckboxChange() {
  * Initialize Search section
  */
 function initSearchSection() {
+    // Set default port (Southampton) as active
+    var defaultPortButton = document.querySelector('[data-field="port"][data-value="southampton"]');
+    if (defaultPortButton) {
+        defaultPortButton.classList.add('search__option-button--active');
+    }
     // Attach event listeners to all option buttons
     document.querySelectorAll('[data-field]').forEach(function (button) {
         button.addEventListener('click', function () { return handleOptionButtonClick(button); });
@@ -383,7 +403,7 @@ function initSearchSection() {
     if (familyCheckbox) {
         familyCheckbox.addEventListener('change', handleFamilyCheckboxChange);
     }
-    // Initial preview update (will show empty state)
+    // Initial preview update (will show Southampton background)
     updatePreview();
 }
 /**

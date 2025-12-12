@@ -215,13 +215,16 @@ interface PassengerState {
 
 // Initialize passenger state
 const passengerState: PassengerState = {
-    port: null,
+    port: 'southampton', // Default to Southampton for background
     age: 30, // Default age from slider
     gender: null,
     ticketClass: null,
     travelWithFamily: false,
     familySize: null
 };
+
+// Track last rendered character to avoid unnecessary re-renders
+let lastRenderedCharacter: string | null = null;
 
 // Port background images
 const PORT_BACKGROUNDS: Record<Port, string> = {
@@ -313,12 +316,10 @@ function updatePreviewBackground(): void {
 
 /**
  * Update character in preview
+ * Only re-renders if character asset path has changed
  */
 function updatePreviewCharacter(): void {
     if (!previewCharacterLayer) return;
-
-    // Clear existing character
-    previewCharacterLayer.innerHTML = '';
 
     // Only show character if all required fields are filled
     if (isPassengerComplete(passengerState)) {
@@ -327,6 +328,16 @@ function updatePreviewCharacter(): void {
             age: passengerState.age!,
             ticketClass: passengerState.ticketClass!
         });
+
+        // Only update if character has changed
+        if (characterPath === lastRenderedCharacter) {
+            return; // Character hasn't changed, skip re-render
+        }
+
+        lastRenderedCharacter = characterPath;
+
+        // Clear existing character
+        previewCharacterLayer.innerHTML = '';
 
         const character = document.createElement('img');
         character.className = 'search__character';
@@ -345,6 +356,12 @@ function updatePreviewCharacter(): void {
         setTimeout(() => {
             character.classList.add('search__character--visible');
         }, 50);
+    } else {
+        // Clear character if profile incomplete
+        if (lastRenderedCharacter !== null) {
+            previewCharacterLayer.innerHTML = '';
+            lastRenderedCharacter = null;
+        }
     }
 }
 
@@ -444,6 +461,12 @@ function handleFamilyCheckboxChange(): void {
  * Initialize Search section
  */
 function initSearchSection(): void {
+    // Set default port (Southampton) as active
+    const defaultPortButton = document.querySelector('[data-field="port"][data-value="southampton"]');
+    if (defaultPortButton) {
+        defaultPortButton.classList.add('search__option-button--active');
+    }
+
     // Attach event listeners to all option buttons
     document.querySelectorAll('[data-field]').forEach(button => {
         button.addEventListener('click', () => handleOptionButtonClick(button as HTMLButtonElement));
@@ -461,7 +484,7 @@ function initSearchSection(): void {
         familyCheckbox.addEventListener('change', handleFamilyCheckboxChange);
     }
 
-    // Initial preview update (will show empty state)
+    // Initial preview update (will show Southampton background)
     updatePreview();
 }
 
