@@ -20,3 +20,49 @@ const startButton = document.getElementById("start-button") as HTMLButtonElement
 let snowIntervalId: number | null = null;
 let birdGenerationIntervalId: number | null = null;
 let experienceStarted: boolean = false;
+
+const waveImages: string[] = [
+    "src/public/images/hero/hero_wave_dark_l.png",
+    "src/public/images/hero/hero_wave_light_l.png",
+    "src/public/images/hero/hero_wave_dark_s.png",
+    "src/public/images/hero/hero_wave_light_s.png"
+];
+
+function generateRandomWaves(): void {
+    if (!heroScene) return;
+
+    const numberOfWaves: number = 30 + Math.floor(Math.random() * 11);
+    const seaHeightPercent: number = 55;
+    const seaStartPercent: number = 0;
+
+    for (let i: number = 0; i < numberOfWaves; i++) {
+        const wave: HTMLImageElement = document.createElement("img");
+        const randomImage: string = waveImages[Math.floor(Math.random() * waveImages.length)];
+        wave.src = randomImage;
+        wave.alt = "";
+        wave.className = "hero__wave hero__wave--generated";
+
+        const left: number = Math.random() * 100;
+        const wavePositionInSea: number = 0.1 + Math.random() * 0.7;
+        const bottom: number = seaStartPercent + (seaHeightPercent * wavePositionInSea);
+        const size: number = 4 + Math.random() * 6;
+        const opacity: number = 0.3 + Math.random() * 0.6;
+        const duration: number = 4 + Math.random() * 5;
+        const delay: number = -Math.random() * duration;
+
+        wave.style.position = "absolute";
+        wave.style.left = `${left}%`;
+        wave.style.bottom = `${bottom}%`;
+        wave.style.width = `${size}%`;
+        wave.style.opacity = `${opacity}`;
+        wave.style.zIndex = "2";
+        wave.style.animationDuration = `${duration}s`;
+        wave.style.animationDelay = `${delay}s`;
+
+        heroScene.appendChild(wave);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", (): void => {
+    generateRandomWaves();
+});

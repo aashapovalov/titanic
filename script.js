@@ -18,3 +18,42 @@ var startButton = document.getElementById("start-button");
 var snowIntervalId = null;
 var birdGenerationIntervalId = null;
 var experienceStarted = false;
+var waveImages = [
+    "src/public/images/hero/hero_wave_dark_l.png",
+    "src/public/images/hero/hero_wave_light_l.png",
+    "src/public/images/hero/hero_wave_dark_s.png",
+    "src/public/images/hero/hero_wave_light_s.png"
+];
+function generateRandomWaves() {
+    if (!heroScene)
+        return;
+    var numberOfWaves = 30 + Math.floor(Math.random() * 11);
+    var seaHeightPercent = 55;
+    var seaStartPercent = 0;
+    for (var i = 0; i < numberOfWaves; i++) {
+        var wave = document.createElement("img");
+        var randomImage = waveImages[Math.floor(Math.random() * waveImages.length)];
+        wave.src = randomImage;
+        wave.alt = "";
+        wave.className = "hero__wave hero__wave--generated";
+        var left = Math.random() * 100;
+        var wavePositionInSea = 0.1 + Math.random() * 0.7;
+        var bottom = seaStartPercent + (seaHeightPercent * wavePositionInSea);
+        var size = 4 + Math.random() * 6;
+        var opacity = 0.3 + Math.random() * 0.6;
+        var duration = 4 + Math.random() * 5;
+        var delay = -Math.random() * duration;
+        wave.style.position = "absolute";
+        wave.style.left = "".concat(left, "%");
+        wave.style.bottom = "".concat(bottom, "%");
+        wave.style.width = "".concat(size, "%");
+        wave.style.opacity = "".concat(opacity);
+        wave.style.zIndex = "2";
+        wave.style.animationDuration = "".concat(duration, "s");
+        wave.style.animationDelay = "".concat(delay, "s");
+        heroScene.appendChild(wave);
+    }
+}
+document.addEventListener("DOMContentLoaded", function () {
+    generateRandomWaves();
+});
