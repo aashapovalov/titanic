@@ -63,26 +63,183 @@
 
   <audio id="hero-audio" src="src/public/audio/hero_soundtrack.mp3"></audio>
 </section>
-<section class="search" id="search">
-  <div class="search__container">
-    <div class="search__column search__column--form">
-      <h2 class="search__title">Who Are You on the Titanic?</h2>
-      <form class="search__form" id="search-form">
-      </form>
-    </div>
 
-    <div class="search__column search__column--preview">
-      <div class="search__preview" id="search-preview">
-        <div class="search__preview-background" id="preview-background"></div>
-        <div class="search__preview-effects" id="preview-effects">
-        </div>
-        <div class="search__preview-character-layer" id="preview-character-layer">
-        </div>
-        <div class="search__preview-seagulls" id="preview-seagulls">
-        </div>
-        <div class="search__preview-snow" id="preview-snow">
+<section class="search" id="search">
+  <div class="search__column search__column--form">
+    <h2 class="search__title">Choose your passenger profile</h2>
+    <form class="search__form" id="search-form">
+      <div class="search__field">
+        <label class="search__label">Port of departure</label>
+        <div class="search__button-group search__button-group--ports">
+          <button
+                  type="button"
+                  class="search__option-button"
+                  data-field="port"
+                  data-value="southampton"
+          >
+            Southampton
+          </button>
+          <button
+                  type="button"
+                  class="search__option-button"
+                  data-field="port"
+                  data-value="cherbourg"
+          >
+            Cherbourg
+          </button>
+          <button
+                  type="button"
+                  class="search__option-button"
+                  data-field="port"
+                  data-value="queenstown"
+          >
+            Queenstown
+          </button>
         </div>
       </div>
+
+      <div class="search__field">
+        <label class="search__label">Gender</label>
+        <div class="search__button-group search__button-group--gender">
+          <button
+                  type="button"
+                  class="search__icon-button"
+                  data-field="gender"
+                  data-value="male"
+                  aria-label="Male"
+          >
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="16" r="6" stroke="currentColor" stroke-width="2"/>
+              <path d="M16 10V6M16 6L13 9M16 6L19 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button
+                  type="button"
+                  class="search__icon-button"
+                  data-field="gender"
+                  data-value="female"
+                  aria-label="Female"
+          >
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="16" cy="14" r="6" stroke="currentColor" stroke-width="2"/>
+              <path d="M16 20V26M16 26H13M16 26H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Age Slider -->
+      <div class="search__field">
+        <label class="search__label">
+          Age
+          <span class="search__age-value" id="age-value">30</span>
+        </label>
+        <div class="search__slider-container">
+          <input
+                  type="range"
+                  id="age"
+                  name="age"
+                  min="0"
+                  max="80"
+                  value="30"
+                  class="search__slider"
+          />
+          <div class="search__slider-track"></div>
+        </div>
+      </div>
+
+      <div class="search__field">
+        <label class="search__label">Class</label>
+        <div class="search__button-group search__button-group--class">
+          <button
+                  type="button"
+                  class="search__option-button"
+                  data-field="ticketClass"
+                  data-value="1"
+          >
+            1st
+          </button>
+          <button
+                  type="button"
+                  class="search__option-button"
+                  data-field="ticketClass"
+                  data-value="2"
+          >
+            2nd
+          </button>
+          <button
+                  type="button"
+                  class="search__option-button"
+                  data-field="ticketClass"
+                  data-value="3"
+          >
+            3rd
+          </button>
+        </div>
+      </div>
+
+      <div class="search__field">
+        <label class="search__checkbox-label">
+          <input
+                  type="checkbox"
+                  id="travelWithFamily"
+                  name="travelWithFamily"
+                  class="search__checkbox"
+          />
+          <span class="search__checkbox-text">I travel with family</span>
+        </label>
+      </div>
+
+      <div class="search__field search__field--family-size" id="family-size-field" style="display: none;">
+        <label class="search__label">Family size</label>
+        <div class="search__button-group search__button-group--family">
+          <button
+                  type="button"
+                  class="search__option-button search__option-button--small"
+                  data-field="familySize"
+                  data-value="2"
+          >
+            2
+          </button>
+          <button
+                  type="button"
+                  class="search__option-button search__option-button--small"
+                  data-field="familySize"
+                  data-value="3"
+          >
+            3
+          </button>
+          <button
+                  type="button"
+                  class="search__option-button search__option-button--small"
+                  data-field="familySize"
+                  data-value="4"
+          >
+            4
+          </button>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+              type="button"
+              id="calculate-button"
+              class="search__cta"
+              disabled
+      >
+        Calculate my chances
+      </button>
+
+    </form>
+  </div>
+
+  <div class="search__column search__column--preview">
+    <div class="search__preview" id="search-preview">
+      <div class="search__preview-background" id="preview-background"></div>
+      <div class="search__preview-effects" id="preview-effects"></div>
+      <div class="search__preview-character-layer" id="preview-character-layer"></div>
+      <div class="search__preview-seagulls" id="preview-seagulls"></div>
+      <div class="search__preview-snow" id="preview-snow"></div>
     </div>
   </div>
 
