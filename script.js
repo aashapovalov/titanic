@@ -57,3 +57,35 @@ function generateRandomWaves() {
 document.addEventListener("DOMContentLoaded", function () {
     generateRandomWaves();
 });
+function createSeagull() {
+    if (!heroScene)
+        return;
+    var bird = document.createElement("img");
+    bird.src = birdFrames[0];
+    bird.alt = "Seagull";
+    bird.className = "hero__bird hero__bird--dynamic";
+    var size = 6 + Math.random() * 4;
+    var topPosition = 8 + Math.random() * 12;
+    var duration = 10 + Math.random() * 6;
+    bird.style.width = "".concat(size, "%");
+    bird.style.top = "".concat(topPosition, "%");
+    bird.style.animationDuration = "".concat(duration, "s");
+    heroScene.appendChild(bird);
+    var frameIndex = 0;
+    var spriteInterval = setInterval(function () {
+        frameIndex = (frameIndex + 1) % birdFrames.length;
+        bird.src = birdFrames[frameIndex];
+    }, 100);
+    setTimeout(function () {
+        clearInterval(spriteInterval);
+        if (bird.parentNode === heroScene) {
+            heroScene.removeChild(bird);
+        }
+    }, duration * 1000 + 500);
+}
+function startSeagullGeneration() {
+    createSeagull();
+    birdGenerationIntervalId = window.setInterval(function () {
+        createSeagull();
+    }, 8000 + Math.random() * 7000);
+}
