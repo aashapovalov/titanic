@@ -30,48 +30,7 @@ body {
   color: var(--color-text-light);
 }
 
-.hero {
-  position: relative;
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  display: flex;
-  align-items: stretch;
-  justify-content: center;
-}
-
-.hero__sky {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 45%;
-  background: url("src/public/images/hero/hero_background_sky.png") center/cover no-repeat;
-  z-index: 0;
-}
-
-.hero__sea {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 55%;
-  background: url("src/public/images/hero/hero_background_sea.png") center/cover no-repeat;
-  z-index: 2;
-  overflow: visible;
-}
-
-.hero__sea::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("src/public/images/hero/hero_background_sea.png") center/cover no-repeat;
-  z-index: 5;
-  pointer-events: none;
-}
+/* START SCREEN */
 
 .start-screen {
   position: fixed;
@@ -165,12 +124,64 @@ body {
   transform: scale(1.05);
 }
 
+/* HERO */
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+/* Split Background - Sky and Sea */
+
+.hero__sky {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  background: url("src/public/images/hero/hero_background_sky.png") center/cover no-repeat;
+  z-index: 0;
+}
+
+.hero__sea {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 55%;
+  background: url("src/public/images/hero/hero_background_sea.png") center/cover no-repeat;
+  z-index: 2;
+  overflow: visible;
+}
+
+/* Sea overlay that covers sinking objects */
+.hero__sea::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("src/public/images/hero/hero_background_sea.png") center/cover no-repeat;
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Scene */
+
 .hero__scene {
   position: absolute;
   inset: 0;
   pointer-events: none;
   z-index: 3;
 }
+
+/* Background Ship */
 
 .hero__bg-ship-wrapper {
   position: absolute;
@@ -183,10 +194,12 @@ body {
   z-index: 1;
 }
 
+/* When experience starts, play animations */
 .experience-started .hero__bg-ship-wrapper {
   animation-play-state: running;
 }
 
+/* Trail wrapper */
 .hero__bg-ship-trail-wrapper {
   position: absolute;
   bottom: 100%;
@@ -213,7 +226,10 @@ body {
 .hero__bg-ship {
   position: relative;
   width: 100%;
+
 }
+
+/* Background Iceberg - positioned at horizon, always visible (in front of sea) */
 
 .hero__bg-iceberg-wrapper {
   position: absolute;
@@ -229,6 +245,18 @@ body {
   animation: floating-slow 8s ease-in-out infinite;
 }
 
+/* Iceberg */
+
+.hero__iceberg {
+  position: absolute;
+  bottom: 15%;
+  left: 8%;
+  width: 25%;
+  z-index: 3;
+}
+
+/* Large Titanic Ship */
+
 .hero__ship-large {
   position: absolute;
   bottom: 30%;
@@ -238,14 +266,94 @@ body {
   z-index: 4;
 }
 
+/* Enhanced Waves - Multiple Layers for Realistic Effect */
+
 .hero__wave {
   position: absolute;
   opacity: 0.7;
 }
 
+/* Generated waves - dynamically created by TypeScript */
 .hero__wave--generated {
   animation: wave-move-generated ease-in-out infinite;
 }
+
+/* Back waves (furthest) */
+.hero__wave--back1 {
+  width: 8%;
+  left: 5%;
+  bottom: 16%;
+  opacity: 0.4;
+  z-index: 2;
+  animation: wave-move-slow 8s ease-in-out infinite;
+}
+
+.hero__wave--back2 {
+  width: 7%;
+  left: 35%;
+  bottom: 17%;
+  opacity: 0.45;
+  z-index: 2;
+  animation: wave-move-slow 7.5s ease-in-out infinite 1s;
+}
+
+/* Middle waves */
+.hero__wave--mid1 {
+  width: 9%;
+  left: 65%;
+  bottom: 18%;
+  opacity: 0.55;
+  z-index: 3;
+  animation: wave-move-medium 6.5s ease-in-out infinite 0.5s;
+}
+
+.hero__wave--mid2 {
+  width: 8%;
+  left: 18%;
+  bottom: 19%;
+  opacity: 0.6;
+  z-index: 3;
+  animation: wave-move-medium 6s ease-in-out infinite 2s;
+}
+
+/* Front waves (closest) */
+.hero__wave--front1 {
+  width: 6%;
+  left: 10%;
+  bottom: 14%;
+  opacity: 0.75;
+  z-index: 5;
+  animation: wave-move-fast 5s ease-in-out infinite;
+}
+
+.hero__wave--front2 {
+  width: 5.5%;
+  left: 45%;
+  bottom: 13%;
+  opacity: 0.8;
+  z-index: 5;
+  animation: wave-move-fast 4.5s ease-in-out infinite 1.5s;
+}
+
+.hero__wave--front3 {
+  width: 6%;
+  left: 75%;
+  bottom: 12%;
+  opacity: 0.85;
+  z-index: 5;
+  animation: wave-move-fast 5.2s ease-in-out infinite 0.8s;
+}
+
+.hero__wave--front4 {
+  width: 5%;
+  left: 88%;
+  bottom: 11%;
+  opacity: 0.9;
+  z-index: 5;
+  animation: wave-move-fast 4.8s ease-in-out infinite 2.3s;
+}
+
+/* Characters */
 
 .hero__character {
   position: absolute;
@@ -265,6 +373,21 @@ body {
   width: 30%;
 }
 
+/* Seagull */
+
+.hero__bird {
+  position: absolute;
+  top: 12%;
+  left: -15%;
+  width: 8%;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  z-index: 6;
+  animation: bird-flight 12s linear infinite;
+}
+
+/* Dynamic seagulls */
 .hero__bird--dynamic {
   position: absolute;
   left: -15%;
@@ -276,6 +399,8 @@ body {
   pointer-events: none;
 }
 
+/* Snow Layer */
+
 .hero__snow-layer {
   position: absolute;
   inset: 0;
@@ -283,6 +408,8 @@ body {
   pointer-events: none;
   z-index: 10;
 }
+
+/* Snowflake */
 
 .snowflake {
   position: absolute;
@@ -294,6 +421,8 @@ body {
   animation: snow-fall linear forwards;
 }
 
+/* Content */
+
 .hero__content {
   position: relative;
   z-index: 11;
@@ -304,8 +433,7 @@ body {
   align-items: center;
   justify-content: space-evenly;
   height: 100%;
-  padding: 0 2rem 3rem 2rem;
-}
+  padding: 0 2rem 3rem 2rem;}
 
 .hero__title {
   font-size: 5rem;
@@ -346,6 +474,13 @@ body {
   box-shadow: 0 8px 16px var(--color-shadow-light);
 }
 
+/* =====================
+   ANIMATIONS
+   ===================== */
+
+/* Floating animations for objects on water */
+
+/* Animation for generated waves */
 @keyframes wave-move-generated {
   0%, 100% {
     transform: translateX(0) translateY(0);
@@ -394,6 +529,37 @@ body {
   animation: floating-fast 4.5s ease-in-out infinite;
 }
 
+/* Wave animations - different speeds for depth effect */
+
+@keyframes wave-move-slow {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(-15px) translateY(-3px);
+  }
+}
+
+@keyframes wave-move-medium {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(-25px) translateY(-5px);
+  }
+}
+
+@keyframes wave-move-fast {
+  0%, 100% {
+    transform: translateX(0) translateY(0);
+  }
+  50% {
+    transform: translateX(-35px) translateY(-6px);
+  }
+}
+
+/* Bird flight animation */
+
 @keyframes bird-flight {
   0% {
     transform: translateX(0) translateY(0) scale(0.8);
@@ -420,10 +586,12 @@ body {
   }
 }
 
+/* Background ship animation - wrapper handles X movement and rotation, ship sinks */
+
 @keyframes ship-sail-and-sink {
   0% {
     transform: translateX(0) translateY(30%) rotate(0deg);
-    filter: brightness(1.2) contrast(1.3);
+    filter: brightness(1.2) contrast(1.3); /* Enhanced visibility */
   }
   71% {
     transform: translateX(-82vw) translateY(30%) rotate(0deg);
@@ -431,7 +599,7 @@ body {
   }
   74% {
     transform: translateX(-82vw) translateY(30%) rotate(-3deg);
-    filter: brightness(1.3) contrast(1.4);
+    filter: brightness(1.3) contrast(1.4); /* Extra bright on impact */
   }
   84% {
     transform: translateX(-82vw) translateY(40%) rotate(-15deg);
@@ -447,6 +615,8 @@ body {
   }
 }
 
+/* Trail animation - only X movement, Y stays at horizon */
+
 @keyframes ship-trail-follow {
   0% {
     transform: translateX(0) translateY(150%);
@@ -461,7 +631,7 @@ body {
   }
   74% {
     transform: translateX(-82vw) translateY(150%);
-    opacity: 0.7;
+    opacity: 0.7; /* Brighter on impact */
   }
   84% {
     transform: translateX(-82vw) translateY(150%);
@@ -477,6 +647,8 @@ body {
   }
 }
 
+/* Snowfall animation */
+
 @keyframes snow-fall {
   from {
     transform: translateY(var(--start-y, -10vh)) translateX(0) rotate(0deg);
@@ -491,5 +663,49 @@ body {
   to {
     transform: translateY(110vh) translateX(var(--drift, 20px)) rotate(360deg);
     opacity: 0;
+  }
+}
+
+/* Responsive adjustments */
+
+@media (max-width: 768px) {
+  .start-screen__title {
+    font-size: 2.5rem;
+  }
+
+  .start-screen__subtitle {
+    font-size: 1rem;
+  }
+
+  .start-screen__button {
+    font-size: 1rem;
+    padding: 1.2rem 2rem;
+  }
+
+  .start-screen__content {
+    padding: 2rem;
+  }
+
+  /* Hero responsive */
+  .hero__title {
+    font-size: 3rem;
+  }
+
+  .hero__cta {
+    font-size: 0.9rem;
+    padding: 1rem 2rem;
+  }
+
+  .hero__ship-large {
+    width: 60%;
+  }
+
+  .hero__iceberg {
+    width: 35%;
+  }
+
+  .hero__character--leo,
+  .hero__character--kate {
+    width: 28%;
   }
 }
