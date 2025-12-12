@@ -164,3 +164,67 @@ body {
 .start-screen__button:active {
   transform: scale(1.05);
 }
+
+.hero__scene {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.hero__bg-ship-wrapper {
+  position: absolute;
+  bottom: 100%;
+  right: -15%;
+  width: 10%;
+  transform: translateY(30%);
+  animation: ship-sail-and-sink 45s ease-in-out;
+  animation-play-state: paused;
+  z-index: 1;
+}
+
+.experience-started .hero__bg-ship-wrapper {
+  animation-play-state: running;
+}
+
+.hero__bg-ship-trail-wrapper {
+  position: absolute;
+  bottom: 100%;
+  right: -13%;
+  width: 6%;
+  transform: translateY(150%);
+  animation: ship-trail-follow 45s ease-in-out;
+  animation-play-state: paused;
+  z-index: 15;
+}
+
+.experience-started .hero__bg-ship-trail-wrapper {
+  animation-play-state: running;
+}
+
+.hero__bg-ship-trail {
+  position: absolute;
+  width: 150%;
+  left: -25%;
+  top: -50%;
+  opacity: 0.6;
+}
+
+.hero__bg-ship {
+  position: relative;
+  width: 100%;
+}
+
+.hero__bg-iceberg-wrapper {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  width: 28%;
+  transform: translateY(35%);
+  z-index: 10;
+}
+
+.hero__bg-iceberg {
+  width: 100%;
+  animation: floating-slow 8s ease-in-out infinite;
+}
