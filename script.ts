@@ -105,3 +105,41 @@ function startSeagullGeneration(): void {
         createSeagull();
     }, 8000 + Math.random() * 7000);
 }
+
+function startSnowfall(): void {
+    if (!snowLayer) return;
+
+    const createSnowflake = (): void => {
+        const flake: HTMLDivElement = document.createElement("div");
+        flake.className = "snowflake";
+
+        const startLeft: number = Math.random() * 100;
+        const duration: number = 8000 + Math.random() * 6000;
+        const startY: number = -10 - (Math.random() * 20);
+        const drift: number = (Math.random() - 0.5) * 100;
+        const size: number = 4 + Math.random() * 3;
+
+        flake.style.left = `${startLeft}vw`;
+        flake.style.width = `${size}px`;
+        flake.style.height = `${size}px`;
+        flake.style.animationDuration = `${duration}ms`;
+        flake.style.setProperty('--drift', `${drift}px`);
+        flake.style.setProperty('--start-y', `${startY}vh`);
+
+        if (snowLayer) {
+            snowLayer.appendChild(flake);
+        }
+
+        setTimeout(() => {
+            if (snowLayer && flake.parentNode === snowLayer) {
+                snowLayer.removeChild(flake);
+            }
+        }, duration + 100);
+    };
+
+    for (let i: number = 0; i < 50; i++) {
+        setTimeout(createSnowflake, i * 100);
+    }
+
+    snowIntervalId = window.setInterval(createSnowflake, 300);
+}

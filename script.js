@@ -89,3 +89,34 @@ function startSeagullGeneration() {
         createSeagull();
     }, 8000 + Math.random() * 7000);
 }
+function startSnowfall() {
+    if (!snowLayer)
+        return;
+    var createSnowflake = function () {
+        var flake = document.createElement("div");
+        flake.className = "snowflake";
+        var startLeft = Math.random() * 100;
+        var duration = 8000 + Math.random() * 6000;
+        var startY = -10 - (Math.random() * 20);
+        var drift = (Math.random() - 0.5) * 100;
+        var size = 4 + Math.random() * 3;
+        flake.style.left = "".concat(startLeft, "vw");
+        flake.style.width = "".concat(size, "px");
+        flake.style.height = "".concat(size, "px");
+        flake.style.animationDuration = "".concat(duration, "ms");
+        flake.style.setProperty('--drift', "".concat(drift, "px"));
+        flake.style.setProperty('--start-y', "".concat(startY, "vh"));
+        if (snowLayer) {
+            snowLayer.appendChild(flake);
+        }
+        setTimeout(function () {
+            if (snowLayer && flake.parentNode === snowLayer) {
+                snowLayer.removeChild(flake);
+            }
+        }, duration + 100);
+    };
+    for (var i = 0; i < 50; i++) {
+        setTimeout(createSnowflake, i * 100);
+    }
+    snowIntervalId = window.setInterval(createSnowflake, 300);
+}
