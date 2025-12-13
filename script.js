@@ -184,12 +184,16 @@ var PORT_BACKGROUNDS = {
 var searchPreview = document.getElementById('search-preview');
 var previewBackground = document.getElementById('preview-background');
 var previewCharacterLayer = document.getElementById('preview-character-layer');
+var previewSeagulls = document.getElementById('preview-seagulls');
+var previewSnow = document.getElementById('preview-snow');
 var ageSlider = document.getElementById('age');
 var ageValue = document.getElementById('age-value');
 var familyCheckbox = document.getElementById('travelWithFamily');
 var familySizeField = document.getElementById('family-size-field');
 var calculateButton = document.getElementById('calculate-button');
 var harborAudio = document.getElementById('harbor-audio');
+var searchSnowIntervalId = null;
+var searchBirdIntervalId = null;
 /**
  * Age to bucket mapping (boundaries: 0-4, 4-14, 14-30, 30-50, 50+)
  * Rule: Lower bound inclusive, upper bound exclusive
@@ -405,6 +409,87 @@ function initSearchSection() {
     }
     // Initial preview update (will show Southampton background)
     updatePreview();
+    // Start atmospheric effects
+    startSearchSnowfall();
+    startSearchSeagulls();
+}
+/**
+ * Create snowfall in search preview
+ */
+function startSearchSnowfall() {
+    console.log('🌨️ Starting search snowfall...');
+    console.log('previewBackground element:', previewBackground);
+    if (!previewBackground) {
+        console.error('❌ previewBackground is null!');
+        return;
+    }
+    var createSnowflake = function () {
+        var flake = document.createElement("div");
+        flake.className = "snowflake";
+        // Set inline styles for guaranteed positioning
+        flake.style.cssText = "\n            position: absolute;\n            left: ".concat(Math.random() * 100, "%;\n            top: 0;\n            width: ").concat(4 + Math.random() * 3, "px;\n            height: ").concat(4 + Math.random() * 3, "px;\n            border-radius: 50%;\n            background-color: rgba(173, 216, 230, 0.8);\n            box-shadow: 0 0 3px rgba(173, 216, 230, 0.6);\n            pointer-events: none;\n            z-index: 10;\n        ");
+        var duration = 8000 + Math.random() * 6000;
+        var drift = (Math.random() - 0.5) * 100;
+        flake.style.animationDuration = "".concat(duration, "ms");
+        flake.style.setProperty('--start-y', '0vh');
+        flake.style.setProperty('--drift', "".concat(drift, "px"));
+        previewBackground.appendChild(flake);
+        setTimeout(function () {
+            if (previewBackground && flake.parentNode === previewBackground) {
+                previewBackground.removeChild(flake);
+            }
+        }, duration + 100);
+    };
+    // Initial burst of snowflakes
+    console.log('Creating initial 20 snowflakes...');
+    for (var i = 0; i < 20; i++) {
+        setTimeout(createSnowflake, i * 200);
+    }
+    // Continuous snowfall
+    searchSnowIntervalId = window.setInterval(createSnowflake, 500);
+    console.log('✅ Snow interval started');
+}
+/**
+ * Create a seagull in search preview
+ */
+function createSearchSeagull() {
+    if (!previewBackground)
+        return;
+    var bird = document.createElement("img");
+    bird.src = birdFrames[0];
+    bird.alt = "Seagull";
+    bird.className = "search__seagull";
+    var size = 8 + Math.random() * 4;
+    var topPosition = 15 + Math.random() * 30;
+    var duration = 12 + Math.random() * 8;
+    bird.style.width = "".concat(size, "%");
+    bird.style.top = "".concat(topPosition, "%");
+    bird.style.left = '-15%';
+    bird.style.position = 'absolute';
+    bird.style.animationDuration = "".concat(duration, "s");
+    previewBackground.appendChild(bird);
+    // Animate sprite frames
+    var frameIndex = 0;
+    var spriteInterval = setInterval(function () {
+        frameIndex = (frameIndex + 1) % birdFrames.length;
+        bird.src = birdFrames[frameIndex];
+    }, 100);
+    // Remove after animation
+    setTimeout(function () {
+        clearInterval(spriteInterval);
+        if (bird.parentNode === previewBackground) {
+            previewBackground.removeChild(bird);
+        }
+    }, duration * 1000 + 500);
+}
+/**
+ * Start generating seagulls in search preview
+ */
+function startSearchSeagulls() {
+    createSearchSeagull();
+    searchBirdIntervalId = window.setInterval(function () {
+        createSearchSeagull();
+    }, 10000 + Math.random() * 8000);
 }
 /**
  * Initialize on page load
@@ -418,7 +503,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     // Initialize Search section
     initSearchSection();
-    // Scroll Hero CTA to Search
+    // Scroll Hero CTA to Search with smooth behavior
     if (heroCta) {
         heroCta.addEventListener("click", function () {
             var searchSection = document.getElementById("search");
@@ -427,7 +512,52 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+    // Audio crossfade between sections
+    setupAudioTransitions();
 });
+/**
+ * Setup audio transitions between Hero and Search sections
+ */
+function setupAudioTransitions() {
+    if (!heroAudio || !harborAudio)
+        return;
+    // Set initial volumes
+    harborAudio.volume = 0;
+    var heroSection = document.querySelector('.hero');
+    var searchSection = document.getElementById('search');
+    if (!heroSection || !searchSection)
+        return;
+    // Intersection Observer options
+    var options = {
+        root: null,
+        threshold: [0, 0.25, 0.5, 0.75, 1.0]
+    };
+    // Observer for Search section
+    var searchObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            var ratio = entry.intersectionRatio;
+            if (entry.isIntersecting) {
+                // Start harbor audio when search section appears
+                if (harborAudio.paused && experienceStarted) {
+                    harborAudio.play().catch(function (err) { return console.log("Harbor audio play error:", err); });
+                }
+                // Crossfade: fade in harbor, fade out hero
+                harborAudio.volume = Math.min(0.3, ratio * 0.3);
+                if (heroAudio) {
+                    heroAudio.volume = Math.max(0, 0.5 * (1 - ratio));
+                }
+            }
+            else {
+                // Fade out harbor audio when scrolling away
+                harborAudio.volume = 0;
+                if (heroAudio && !heroAudio.paused) {
+                    heroAudio.volume = 0.5;
+                }
+            }
+        });
+    }, options);
+    searchObserver.observe(searchSection);
+}
 /**
  * Cleanup function
  */
@@ -437,6 +567,12 @@ window.addEventListener("beforeunload", function () {
     }
     if (snowIntervalId !== null) {
         clearInterval(snowIntervalId);
+    }
+    if (searchSnowIntervalId !== null) {
+        clearInterval(searchSnowIntervalId);
+    }
+    if (searchBirdIntervalId !== null) {
+        clearInterval(searchBirdIntervalId);
     }
     if (heroAudio) {
         heroAudio.pause();

@@ -237,12 +237,17 @@ const PORT_BACKGROUNDS: Record<Port, string> = {
 const searchPreview = document.getElementById('search-preview') as HTMLElement | null;
 const previewBackground = document.getElementById('preview-background') as HTMLElement | null;
 const previewCharacterLayer = document.getElementById('preview-character-layer') as HTMLElement | null;
+const previewSeagulls = document.getElementById('preview-seagulls') as HTMLElement | null;
+const previewSnow = document.getElementById('preview-snow') as HTMLElement | null;
 const ageSlider = document.getElementById('age') as HTMLInputElement | null;
 const ageValue = document.getElementById('age-value') as HTMLElement | null;
 const familyCheckbox = document.getElementById('travelWithFamily') as HTMLInputElement | null;
 const familySizeField = document.getElementById('family-size-field') as HTMLElement | null;
 const calculateButton = document.getElementById('calculate-button') as HTMLButtonElement | null;
 const harborAudio = document.getElementById('harbor-audio') as HTMLAudioElement | null;
+
+let searchSnowIntervalId: number | null = null;
+let searchBirdIntervalId: number | null = null;
 
 /**
  * Age to bucket mapping (boundaries: 0-4, 4-14, 14-30, 30-50, 50+)
@@ -486,6 +491,116 @@ function initSearchSection(): void {
 
     // Initial preview update (will show Southampton background)
     updatePreview();
+
+    // Start atmospheric effects
+    startSearchSnowfall();
+    startSearchSeagulls();
+}
+
+/**
+ * Create snowfall in search preview
+ */
+function startSearchSnowfall(): void {
+    console.log('🌨️ Starting search snowfall...');
+    console.log('previewBackground element:', previewBackground);
+
+    if (!previewBackground) {
+        console.error('❌ previewBackground is null!');
+        return;
+    }
+
+    const createSnowflake = (): void => {
+        const flake = document.createElement("div");
+        flake.className = "snowflake";
+
+        // Set inline styles for guaranteed positioning
+        flake.style.cssText = `
+            position: absolute;
+            left: ${Math.random() * 100}%;
+            top: 0;
+            width: ${4 + Math.random() * 3}px;
+            height: ${4 + Math.random() * 3}px;
+            border-radius: 50%;
+            background-color: rgba(173, 216, 230, 0.8);
+            box-shadow: 0 0 3px rgba(173, 216, 230, 0.6);
+            pointer-events: none;
+            z-index: 10;
+        `;
+
+        const duration = 8000 + Math.random() * 6000;
+        const drift = (Math.random() - 0.5) * 100;
+
+        flake.style.animationDuration = `${duration}ms`;
+        flake.style.setProperty('--start-y', '0vh');
+        flake.style.setProperty('--drift', `${drift}px`);
+
+        previewBackground.appendChild(flake);
+
+        setTimeout(() => {
+            if (previewBackground && flake.parentNode === previewBackground) {
+                previewBackground.removeChild(flake);
+            }
+        }, duration + 100);
+    };
+
+    // Initial burst of snowflakes
+    console.log('Creating initial 20 snowflakes...');
+    for (let i = 0; i < 20; i++) {
+        setTimeout(createSnowflake, i * 200);
+    }
+
+    // Continuous snowfall
+    searchSnowIntervalId = window.setInterval(createSnowflake, 500);
+    console.log('✅ Snow interval started');
+}
+
+/**
+ * Create a seagull in search preview
+ */
+function createSearchSeagull(): void {
+    if (!previewBackground) return;
+
+    const bird: HTMLImageElement = document.createElement("img");
+    bird.src = birdFrames[0];
+    bird.alt = "Seagull";
+    bird.className = "search__seagull";
+
+    const size: number = 8 + Math.random() * 4;
+    const topPosition: number = 15 + Math.random() * 30;
+    const duration: number = 12 + Math.random() * 8;
+
+    bird.style.width = `${size}%`;
+    bird.style.top = `${topPosition}%`;
+    bird.style.left = '-15%';
+    bird.style.position = 'absolute';
+    bird.style.animationDuration = `${duration}s`;
+
+    previewBackground.appendChild(bird);
+
+    // Animate sprite frames
+    let frameIndex: number = 0;
+    const spriteInterval = setInterval(() => {
+        frameIndex = (frameIndex + 1) % birdFrames.length;
+        bird.src = birdFrames[frameIndex];
+    }, 100);
+
+    // Remove after animation
+    setTimeout(() => {
+        clearInterval(spriteInterval);
+        if (bird.parentNode === previewBackground) {
+            previewBackground.removeChild(bird);
+        }
+    }, duration * 1000 + 500);
+}
+
+/**
+ * Start generating seagulls in search preview
+ */
+function startSearchSeagulls(): void {
+    createSearchSeagull();
+    searchBirdIntervalId = window.setInterval(() => {
+        createSearchSeagull();
+    }, 10000 + Math.random() * 8000);
 }
 
 /**
@@ -503,7 +618,7 @@ document.addEventListener("DOMContentLoaded", (): void => {
     // Initialize Search section
     initSearchSection();
 
-    // Scroll Hero CTA to Search
+    // Scroll Hero CTA to Search with smooth behavior
     if (heroCta) {
         heroCta.addEventListener("click", (): void => {
             const searchSection = document.getElementById("search");
@@ -512,7 +627,59 @@ document.addEventListener("DOMContentLoaded", (): void => {
             }
         });
     }
+
+    // Audio crossfade between sections
+    setupAudioTransitions();
 });
+
+/**
+ * Setup audio transitions between Hero and Search sections
+ */
+function setupAudioTransitions(): void {
+    if (!heroAudio || !harborAudio) return;
+
+    // Set initial volumes
+    harborAudio.volume = 0;
+
+    const heroSection = document.querySelector('.hero') as HTMLElement | null;
+    const searchSection = document.getElementById('search') as HTMLElement | null;
+
+    if (!heroSection || !searchSection) return;
+
+    // Intersection Observer options
+    const options: IntersectionObserverInit = {
+        root: null,
+        threshold: [0, 0.25, 0.5, 0.75, 1.0]
+    };
+
+    // Observer for Search section
+    const searchObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const ratio = entry.intersectionRatio;
+
+            if (entry.isIntersecting) {
+                // Start harbor audio when search section appears
+                if (harborAudio.paused && experienceStarted) {
+                    harborAudio.play().catch(err => console.log("Harbor audio play error:", err));
+                }
+
+                // Crossfade: fade in harbor, fade out hero
+                harborAudio.volume = Math.min(0.3, ratio * 0.3);
+                if (heroAudio) {
+                    heroAudio.volume = Math.max(0, 0.5 * (1 - ratio));
+                }
+            } else {
+                // Fade out harbor audio when scrolling away
+                harborAudio.volume = 0;
+                if (heroAudio && !heroAudio.paused) {
+                    heroAudio.volume = 0.5;
+                }
+            }
+        });
+    }, options);
+
+    searchObserver.observe(searchSection);
+}
 
 /**
  * Cleanup function
@@ -523,6 +690,12 @@ window.addEventListener("beforeunload", (): void => {
     }
     if (snowIntervalId !== null) {
         clearInterval(snowIntervalId);
+    }
+    if (searchSnowIntervalId !== null) {
+        clearInterval(searchSnowIntervalId);
+    }
+    if (searchBirdIntervalId !== null) {
+        clearInterval(searchBirdIntervalId);
     }
     if (heroAudio) {
         heroAudio.pause();
