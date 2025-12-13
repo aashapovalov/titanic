@@ -496,17 +496,11 @@ function startSearchSeagulls() {
 /**
  * Initialize on page load
  */
-// Prevent browser from restoring scroll position on refresh
-if ('scrollRestoration' in history) {
-    history.scrollRestoration = 'manual';
-}
-// Immediately scroll to top (before DOM loads)
-window.scrollTo(0, 0);
 document.addEventListener("DOMContentLoaded", function () {
     console.log('🌟 DOM Content Loaded!');
-    console.log('📍 Current script version: AUDIO-FIX-v3');
-    // Force scroll to top again after DOM loads
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    console.log('📍 Current script version: SNOW-DEBUG-v2');
+    // Always scroll to top on page load/refresh
+    window.scrollTo(0, 0);
     // Generate waves for Hero
     generateRandomWaves();
     // Wait for user to click start button
@@ -540,27 +534,42 @@ function setupAudioTransitions() {
     var searchSection = document.getElementById('search');
     if (!heroSection || !searchSection)
         return;
-    // Intersection Observer options
+    // More threshold steps for smoother transitions (21 steps = every 5%)
     var options = {
         root: null,
-        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+        threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
     };
     // Observer for Search section
     var searchObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
             var ratio = entry.intersectionRatio;
-            if (ratio > 0.1) {
-                // Search section becoming visible - STOP hero audio immediately
+            if (ratio > 0.05) {
+                // Search section becoming visible
+                // Fade out hero audio smoothly (stops at 0.3 ratio)
                 if (heroAudio && !heroAudio.paused) {
-                    heroAudio.pause();
-                    heroAudio.currentTime = 0;
+                    if (ratio > 0.3) {
+                        // Stop hero completely after 30% search visible
+                        heroAudio.pause();
+                        heroAudio.currentTime = 0;
+                    }
+                    else {
+                        // Smooth fade out from 5% to 30%
+                        var fadeRatio = 1 - (ratio / 0.3); // 1.0 at 5%, 0.0 at 30%
+                        heroAudio.volume = Math.max(0, 0.8 * fadeRatio);
+                    }
                 }
-                // Start harbor audio
+                // Start harbor audio and fade in smoothly
                 if (harborAudio.paused && experienceStarted) {
                     harborAudio.play().catch(function (err) { return console.log("Harbor audio play error:", err); });
                 }
-                // Fade in harbor audio based on visibility
-                harborAudio.volume = Math.min(0.8, ratio * 1.2);
+                // Smooth fade in from 5% to 60%
+                if (ratio <= 0.6) {
+                    var fadeInRatio = ratio / 0.6; // 0.0 at 5%, 1.0 at 60%
+                    harborAudio.volume = Math.min(0.8, fadeInRatio * 0.8);
+                }
+                else {
+                    harborAudio.volume = 0.8;
+                }
             }
             else {
                 // Search section not visible - stop harbor audio

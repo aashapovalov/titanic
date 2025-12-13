@@ -1072,8 +1072,9 @@ body {
 /* Character Image */
 
 .search__character {
-  width: 35%;
+  width: 70%;
   height: auto;
+  max-height: 85%;
   object-fit: contain;
   object-position: bottom center;
   opacity: 0;
@@ -1131,7 +1132,8 @@ body {
   }
 
   .search__character {
-    width: 35%;
+    width: 70%;
+    max-height: 85%;
   }
 }
 
@@ -1162,8 +1164,8 @@ body {
   }
 
   .search__character {
-    width: 40%;
-    max-height: 45%;
+    width: 80%;
+    max-height: 90%;
   }
 
   .search__button-group {
