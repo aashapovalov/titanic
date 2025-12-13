@@ -23,9 +23,6 @@ let snowIntervalId = null;
 let birdGenerationIntervalId = null;
 let experienceStarted = false;
 let manualCrossfadeInProgress = false;
-// Track generated family to prevent unnecessary regeneration
-let generatedFamily = [];
-let lastMainCharacterKey = '';
 /**
  * Start the entire experience - called when user clicks start button
  */
@@ -268,149 +265,32 @@ function hasDuplicateAppearance(family) {
 }
 /**
  * Generate family members based on main character
- * Only regenerates if main character's key characteristics change
  */
 function generateFamilyMembers(mainPassenger) {
     if (!mainPassenger.travelWithFamily || !mainPassenger.familySize) {
-        generatedFamily = [];
-        lastMainCharacterKey = '';
         return [];
     }
     const mainBucket = getAgeBucket(mainPassenger.age);
-    const currentFamilySize = mainPassenger.familySize;
-    // Create key based on characteristics that matter for family generation
-    // (gender and ageBucket - NOT class or exact age)
-    const mainCharacterKey = `${mainPassenger.gender}_${mainBucket}`;
-    // Check if we need to regenerate
-    const needsRegeneration = lastMainCharacterKey !== mainCharacterKey;
-    const needsMoreMembers = generatedFamily.length < (currentFamilySize - 1);
-    const hasTooManyMembers = generatedFamily.length > (currentFamilySize - 1);
-    if (!needsRegeneration && !needsMoreMembers && !hasTooManyMembers) {
-        // Just update class for existing family members
-        generatedFamily.forEach(member => {
-            member.ticketClass = mainPassenger.ticketClass;
-        });
-        return generatedFamily;
+    const familySize = mainPassenger.familySize;
+    const membersToGenerate = familySize - 1; // Exclude main character
+    const family = [];
+    // Generate based on main character's age group
+    switch (mainBucket) {
+        case 'baby':
+        case 'child':
+            generateChildFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'youngAdult':
+            generateYoungAdultFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'adult':
+            generateAdultFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'senior':
+            generateSeniorFamily(mainPassenger, membersToGenerate, family);
+            break;
     }
-    if (needsRegeneration) {
-        // Main character changed significantly - regenerate completely
-        generatedFamily = [];
-        lastMainCharacterKey = mainCharacterKey;
-    }
-    const membersToGenerate = currentFamilySize - 1; // Exclude main character
-    const membersNeeded = membersToGenerate - generatedFamily.length;
-    if (membersNeeded > 0) {
-        // Add new members to existing family
-        const newMembers = [];
-        const ticketClass = mainPassenger.ticketClass;
-        // Count existing adult-age members (including main character)
-        const mainIsAdultAge = mainBucket === 'youngAdult' || mainBucket === 'adult' || mainBucket === 'senior';
-        const existingAdultAgeCount = generatedFamily.filter(m => m.ageBucket === 'youngAdult' || m.ageBucket === 'adult' || m.ageBucket === 'senior').length + (mainIsAdultAge ? 1 : 0);
-        // If we already have 2+ adult-age people, force next members to be children
-        if (existingAdultAgeCount >= 2) {
-            // Force children for remaining members
-            for (let i = 0; i < membersNeeded; i++) {
-                const existingChildBuckets = new Set([...generatedFamily, ...newMembers]
-                    .filter(m => m.ageBucket === 'baby' || m.ageBucket === 'child')
-                    .map(m => m.ageBucket));
-                let childBucket;
-                if (!existingChildBuckets.has('baby')) {
-                    childBucket = 'baby';
-                }
-                else if (!existingChildBuckets.has('child')) {
-                    childBucket = 'child';
-                }
-                else {
-                    // Both exist, pick randomly
-                    childBucket = Math.random() < 0.5 ? 'baby' : 'child';
-                }
-                newMembers.push({
-                    gender: getRandomGender(),
-                    ageBucket: childBucket,
-                    age: getRandomAgeInBucket(childBucket),
-                    ticketClass,
-                    position: 0,
-                    zIndex: 0,
-                    isMainCharacter: false
-                });
-            }
-        }
-        else {
-            // Generate based on main character's age group (normal logic)
-            switch (mainBucket) {
-                case 'baby':
-                case 'child':
-                    generateChildFamily(mainPassenger, membersNeeded, newMembers);
-                    break;
-                case 'youngAdult':
-                    generateYoungAdultFamily(mainPassenger, membersNeeded, newMembers);
-                    break;
-                case 'adult':
-                    generateAdultFamily(mainPassenger, membersNeeded, newMembers);
-                    break;
-                case 'senior':
-                    generateSeniorFamily(mainPassenger, membersNeeded, newMembers);
-                    break;
-            }
-        }
-        // Ensure new members don't duplicate existing ones
-        const existingKeys = new Set(generatedFamily.map(m => `${m.gender}_${m.ageBucket}`));
-        const uniqueNewMembers = newMembers.filter(member => {
-            const key = `${member.gender}_${member.ageBucket}`;
-            if (existingKeys.has(key)) {
-                return false;
-            }
-            existingKeys.add(key);
-            return true;
-        });
-        generatedFamily.push(...uniqueNewMembers);
-        // If we still need more and couldn't generate unique ones, try alternatives
-        while (generatedFamily.length < membersToGenerate && generatedFamily.length < 3) {
-            const altMember = generateAlternativeMember(mainPassenger, existingKeys);
-            if (altMember) {
-                generatedFamily.push(altMember);
-                existingKeys.add(`${altMember.gender}_${altMember.ageBucket}`);
-            }
-            else {
-                break; // Can't generate more unique members
-            }
-        }
-    }
-    else if (membersNeeded < 0) {
-        // Remove excess members
-        generatedFamily = generatedFamily.slice(0, membersToGenerate);
-    }
-    // Update ticket class for all members
-    generatedFamily.forEach(member => {
-        member.ticketClass = mainPassenger.ticketClass;
-    });
-    return generatedFamily;
-}
-/**
- * Generate an alternative family member to avoid duplicates
- */
-function generateAlternativeMember(mainPassenger, usedKeys) {
-    const ticketClass = mainPassenger.ticketClass;
-    const availableBuckets = ['baby', 'child', 'youngAdult', 'adult', 'senior'];
-    const genders = ['male', 'female'];
-    // Try all combinations
-    for (const bucket of availableBuckets) {
-        for (const gender of genders) {
-            const key = `${gender}_${bucket}`;
-            if (!usedKeys.has(key)) {
-                return {
-                    gender,
-                    ageBucket: bucket,
-                    age: getRandomAgeInBucket(bucket),
-                    ticketClass,
-                    position: 0,
-                    zIndex: 0,
-                    isMainCharacter: false
-                };
-            }
-        }
-    }
-    return null; // All combinations used
+    return family;
 }
 /**
  * Generate family for baby/child main character
@@ -477,41 +357,26 @@ function generateYoungAdultFamily(main, count, family) {
         });
     }
     if (count >= 2) {
-        // Second member: If first was spouse (youngAdult/adult), add child
-        // If first was parent (adult), add spouse or child
-        const firstMember = family[0];
-        if (firstMember.ageBucket === 'youngAdult' || firstMember.ageBucket === 'adult') {
-            // First member is adult-age, so add child
-            const childBucket = Math.random() < 0.5 ? 'baby' : 'child';
-            family.push({
-                gender: getRandomGender(),
-                ageBucket: childBucket,
-                age: getRandomAgeInBucket(childBucket),
-                ticketClass,
-                position: 0,
-                zIndex: 0,
-                isMainCharacter: false
-            });
-        }
-    }
-    if (count >= 3) {
-        // Third member: ensure different bucket from second
-        const secondMember = family[1];
-        let thirdBucket;
-        if (secondMember.ageBucket === 'baby') {
-            thirdBucket = 'child';
-        }
-        else if (secondMember.ageBucket === 'child') {
-            thirdBucket = 'baby';
-        }
-        else {
-            // Shouldn't happen, but fallback to child
-            thirdBucket = 'child';
-        }
+        // Child
+        const childBucket = Math.random() < 0.5 ? 'baby' : 'child';
         family.push({
             gender: getRandomGender(),
-            ageBucket: thirdBucket,
-            age: getRandomAgeInBucket(thirdBucket),
+            ageBucket: childBucket,
+            age: getRandomAgeInBucket(childBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 3) {
+        // Second child - different bucket than first
+        const firstChildBucket = family[1].ageBucket;
+        const secondChildBucket = firstChildBucket === 'baby' ? 'child' : 'baby';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: secondChildBucket,
+            age: getRandomAgeInBucket(secondChildBucket),
             ticketClass,
             position: 0,
             zIndex: 0,
@@ -747,20 +612,18 @@ function updatePreviewCharacter() {
 function calculatePosition(index, total) {
     if (total === 1)
         return 50; // Center if alone
-    // Spread across almost full width for all family sizes
-    // Family 2: 30%, 70%
-    // Family 3: 20%, 50%, 80%
-    // Family 4: 15%, 35%, 65%, 85%
     if (total === 2) {
-        const positions = [30, 70];
+        // Closer together: 35%, 65% (30% gap)
+        const positions = [35, 65];
         return positions[index];
     }
     else if (total === 3) {
+        // Use positions 20%, 50%, 80%
         const positions = [20, 50, 80];
         return positions[index];
     }
     else {
-        // Family of 4: spread across 70% of width (15% to 85%)
+        // Family of 4: spread across 70% (15%, 35%, 65%, 85%)
         const positions = [15, 35, 65, 85];
         return positions[index];
     }
@@ -883,9 +746,9 @@ function initSearchSection() {
  */
 function startSearchSnowfall() {
     console.log('🌨️ Starting search snowfall...');
-    console.log('previewBackground element:', previewBackground);
-    if (!previewBackground) {
-        console.error('❌ previewBackground is null!');
+    console.log('previewSnow element:', previewSnow);
+    if (!previewSnow) {
+        console.error('❌ previewSnow is null!');
         return;
     }
     const createSnowflake = () => {
@@ -909,10 +772,10 @@ function startSearchSnowfall() {
         flake.style.animationDuration = `${duration}ms`;
         flake.style.setProperty('--start-y', '0vh');
         flake.style.setProperty('--drift', `${drift}px`);
-        previewBackground.appendChild(flake);
+        previewSnow.appendChild(flake);
         setTimeout(() => {
-            if (previewBackground && flake.parentNode === previewBackground) {
-                previewBackground.removeChild(flake);
+            if (previewSnow && flake.parentNode === previewSnow) {
+                previewSnow.removeChild(flake);
             }
         }, duration + 100);
     };
