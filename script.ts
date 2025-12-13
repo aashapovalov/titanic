@@ -294,14 +294,25 @@ function getCharacterAsset(passenger: {
 }
 
 /**
- * Check if passenger profile is complete
+ * Check if main passenger character should be displayed
+ * (doesn't require family size to be selected)
  */
-function isPassengerComplete(state: PassengerState): boolean {
+function isMainCharacterReady(state: PassengerState): boolean {
     return (
         state.port !== null &&
         state.age !== null &&
         state.gender !== null &&
-        state.ticketClass !== null &&
+        state.ticketClass !== null
+    );
+}
+
+/**
+ * Check if entire passenger profile is complete (including family)
+ * (required for Calculate button to be enabled)
+ */
+function isPassengerComplete(state: PassengerState): boolean {
+    return (
+        isMainCharacterReady(state) &&
         (!state.travelWithFamily || state.familySize !== null)
     );
 }
@@ -327,8 +338,8 @@ function updatePreviewBackground(): void {
 function updatePreviewCharacter(): void {
     if (!previewCharacterLayer) return;
 
-    // Only show character if all required fields are filled
-    if (isPassengerComplete(passengerState)) {
+    // Show character if main passenger data is complete (ignore family size)
+    if (isMainCharacterReady(passengerState)) {
         const characterPath = getCharacterAsset({
             gender: passengerState.gender!,
             age: passengerState.age!,
