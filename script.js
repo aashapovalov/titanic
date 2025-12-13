@@ -388,6 +388,8 @@ function handleFamilyCheckboxChange() {
  * Initialize Search section
  */
 function initSearchSection() {
+    console.log('🚀 initSearchSection() called!');
+    console.log('🎯 About to start snow and seagulls...');
     // Set default port (Southampton) as active
     var defaultPortButton = document.querySelector('[data-field="port"][data-value="southampton"]');
     if (defaultPortButton) {
@@ -494,7 +496,17 @@ function startSearchSeagulls() {
 /**
  * Initialize on page load
  */
+// Prevent browser from restoring scroll position on refresh
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+// Immediately scroll to top (before DOM loads)
+window.scrollTo(0, 0);
 document.addEventListener("DOMContentLoaded", function () {
+    console.log('🌟 DOM Content Loaded!');
+    console.log('📍 Current script version: AUDIO-FIX-v3');
+    // Force scroll to top again after DOM loads
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     // Generate waves for Hero
     generateRandomWaves();
     // Wait for user to click start button
@@ -522,6 +534,7 @@ function setupAudioTransitions() {
     if (!heroAudio || !harborAudio)
         return;
     // Set initial volumes
+    heroAudio.volume = 0.8;
     harborAudio.volume = 0;
     var heroSection = document.querySelector('.hero');
     var searchSection = document.getElementById('search');
@@ -530,28 +543,41 @@ function setupAudioTransitions() {
     // Intersection Observer options
     var options = {
         root: null,
-        threshold: [0, 0.25, 0.5, 0.75, 1.0]
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
     };
     // Observer for Search section
     var searchObserver = new IntersectionObserver(function (entries) {
         entries.forEach(function (entry) {
             var ratio = entry.intersectionRatio;
-            if (entry.isIntersecting) {
-                // Start harbor audio when search section appears
+            if (ratio > 0.1) {
+                // Search section becoming visible - STOP hero audio immediately
+                if (heroAudio && !heroAudio.paused) {
+                    heroAudio.pause();
+                    heroAudio.currentTime = 0;
+                }
+                // Start harbor audio
                 if (harborAudio.paused && experienceStarted) {
                     harborAudio.play().catch(function (err) { return console.log("Harbor audio play error:", err); });
                 }
-                // Crossfade: fade in harbor, fade out hero
-                harborAudio.volume = Math.min(0.3, ratio * 0.3);
-                if (heroAudio) {
-                    heroAudio.volume = Math.max(0, 0.5 * (1 - ratio));
-                }
+                // Fade in harbor audio based on visibility
+                harborAudio.volume = Math.min(0.8, ratio * 1.2);
             }
             else {
-                // Fade out harbor audio when scrolling away
+                // Search section not visible - stop harbor audio
                 harborAudio.volume = 0;
-                if (heroAudio && !heroAudio.paused) {
-                    heroAudio.volume = 0.5;
+                if (!harborAudio.paused) {
+                    harborAudio.pause();
+                    harborAudio.currentTime = 0;
+                }
+                // Resume hero audio only if hero is visible and experience started
+                if (experienceStarted && heroAudio.paused) {
+                    var heroRect = heroSection.getBoundingClientRect();
+                    var heroVisible = heroRect.top < window.innerHeight && heroRect.bottom > 0;
+                    if (heroVisible) {
+                        heroAudio.currentTime = 0; // Restart from beginning
+                        heroAudio.volume = 0.8;
+                        heroAudio.play().catch(function (err) { return console.log("Hero audio play error:", err); });
+                    }
                 }
             }
         });
