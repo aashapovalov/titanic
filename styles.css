@@ -1257,3 +1257,243 @@ body {
     opacity: 0;
   }
 }
+
+/* ============================================
+   RESULTS SECTION
+   ============================================ */
+
+.results {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Background Layer */
+.results__background {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: 1;
+}
+
+.results__background--hope {
+  background-image: url('src/public/images/results/results_bg_hope.png');
+}
+
+.results__background--sad {
+  background-image: url('src/public/images/results/results_bg_sad.png');
+}
+
+/* Titanic Overlay - Pinned to Left, Always Visible */
+.results__titanic {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 45%;
+  width: auto;
+  z-index: 2;
+  object-fit: contain;
+  object-position: bottom left;
+}
+
+/* Passenger Character */
+.results__character {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 55%;
+  width: auto;
+  z-index: 3;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.results__character--visible {
+  opacity: 1;
+}
+
+/* Content Layer */
+.results__content {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+}
+
+/* Typography */
+.results__title {
+  font-size: 2.5rem;
+  color: var(--color-text-light);
+  margin-bottom: 1rem;
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: fadeInDown 0.6s ease forwards;
+  animation-delay: 0.2s;
+}
+
+.results__emphasis {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  opacity: 0;
+  transform: scale(0.8);
+  animation: scaleIn 0.6s ease forwards;
+  animation-delay: 0.4s;
+}
+
+.results__emphasis--hope {
+  color: #4caf50;
+  text-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+}
+
+.results__emphasis--sad {
+  color: #f44336;
+  text-shadow: 0 0 20px rgba(244, 67, 54, 0.5);
+}
+
+.results__percentage {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--color-accent-gold);
+  margin-bottom: 1.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.6s;
+}
+
+.results__subtitle {
+  font-size: 1.25rem;
+  color: var(--color-text-light);
+  max-width: 600px;
+  line-height: 1.6;
+  margin-bottom: 3rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 0.8s;
+}
+
+/* CTA Button */
+.results__cta {
+  padding: 1rem 2.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  border-radius: 2rem;
+  border: none;
+  background-color: var(--color-button-primary);
+  color: var(--color-button-text);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.6s ease forwards;
+  animation-delay: 1s;
+}
+
+.results__cta:hover {
+  background-color: var(--color-button-primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(255, 180, 47, 0.3);
+  filter: brightness(1.15);
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .results__titanic {
+    height: 40%;
+  }
+
+  .results__character {
+    height: 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .results__titanic {
+    height: 35%;
+  }
+
+  .results__character {
+    height: 45%;
+  }
+
+  .results__title {
+    font-size: 1.75rem;
+  }
+
+  .results__emphasis {
+    font-size: 2.5rem;
+  }
+
+  .results__percentage {
+    font-size: 1.5rem;
+  }
+
+  .results__subtitle {
+    font-size: 1rem;
+    padding: 0 1rem;
+  }
+
+  .results__cta {
+    font-size: 1rem;
+    padding: 0.875rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .results__titanic {
+    height: 30%;
+  }
+
+  .results__character {
+    height: 40%;
+  }
+
+  .results__title {
+    font-size: 1.5rem;
+  }
+
+  .results__emphasis {
+    font-size: 2rem;
+  }
+
+  .results__percentage {
+    font-size: 1.25rem;
+  }
+
+  .results__subtitle {
+    font-size: 0.9rem;
+  }
+}
