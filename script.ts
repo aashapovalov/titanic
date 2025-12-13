@@ -1230,6 +1230,9 @@ function showResultsSection(survivalProbability: number): void {
     // Render the results
     renderResults(isHopeful, percentage);
 
+    // Generate waves in sea
+    generateResultsWaves();
+
     // Play audio for this outcome
     playResultAudio(isHopeful);
 
@@ -1326,6 +1329,61 @@ function stopResultAudio(): void {
         resultAudio.pause();
         resultAudio.currentTime = 0;
         resultAudio = null;
+    }
+}
+
+// ============================================
+// RESULTS WAVE EFFECT
+// ============================================
+
+/**
+ * Generate waves in results section (same as hero)
+ */
+function generateResultsWaves(): void {
+    const resultsWaveContainer = document.querySelector('.results__wave');
+    if (!resultsWaveContainer) return;
+
+    console.log('🌊 Generating results waves...');
+
+    // Clear any existing waves
+    resultsWaveContainer.innerHTML = '';
+
+    // Wave images (same as hero)
+    const waveImages: string[] = [
+        "src/public/images/hero/hero_wave_dark_l.png",
+        "src/public/images/hero/hero_wave_light_l.png",
+        "src/public/images/hero/hero_wave_dark_s.png",
+        "src/public/images/hero/hero_wave_light_s.png"
+    ];
+
+    // Generate 30-40 random waves
+    const numberOfWaves: number = 30 + Math.floor(Math.random() * 11);
+
+    for (let i: number = 0; i < numberOfWaves; i++) {
+        const wave: HTMLImageElement = document.createElement("img");
+        const randomImage: string = waveImages[Math.floor(Math.random() * waveImages.length)];
+        wave.src = randomImage;
+        wave.alt = "";
+        wave.className = "results__wave-generated";
+
+        // Random positioning
+        const left: number = Math.random() * 100;
+        const bottom: number = 10 + Math.random() * 70; // 10% to 80% of wave container
+        const size: number = 4 + Math.random() * 6;
+        const opacity: number = 0.3 + Math.random() * 0.6;
+        const duration: number = 4 + Math.random() * 5;
+        const delay: number = -Math.random() * duration;
+
+        wave.style.position = "absolute";
+        wave.style.left = `${left}%`;
+        wave.style.bottom = `${bottom}%`;
+        wave.style.width = `${size}%`;
+        wave.style.opacity = `${opacity}`;
+        wave.style.zIndex = "1";
+        wave.style.animationDuration = `${duration}s`;
+        wave.style.animationDelay = `${delay}s`;
+
+        resultsWaveContainer.appendChild(wave);
     }
 }
 

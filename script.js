@@ -1045,6 +1045,8 @@ function showResultsSection(survivalProbability) {
     console.log(`🎯 Showing results: ${percentage}% survival (${isHopeful ? 'HOPE' : 'SAD'} state)`);
     // Render the results
     renderResults(isHopeful, percentage);
+    // Generate waves in sea
+    generateResultsWaves();
     // Play audio for this outcome
     playResultAudio(isHopeful);
     // Start snow effect
@@ -1122,6 +1124,52 @@ function stopResultAudio() {
         resultAudio.pause();
         resultAudio.currentTime = 0;
         resultAudio = null;
+    }
+}
+// ============================================
+// RESULTS WAVE EFFECT
+// ============================================
+/**
+ * Generate waves in results section (same as hero)
+ */
+function generateResultsWaves() {
+    const resultsWaveContainer = document.querySelector('.results__wave');
+    if (!resultsWaveContainer)
+        return;
+    console.log('🌊 Generating results waves...');
+    // Clear any existing waves
+    resultsWaveContainer.innerHTML = '';
+    // Wave images (same as hero)
+    const waveImages = [
+        "src/public/images/hero/hero_wave_dark_l.png",
+        "src/public/images/hero/hero_wave_light_l.png",
+        "src/public/images/hero/hero_wave_dark_s.png",
+        "src/public/images/hero/hero_wave_light_s.png"
+    ];
+    // Generate 30-40 random waves
+    const numberOfWaves = 30 + Math.floor(Math.random() * 11);
+    for (let i = 0; i < numberOfWaves; i++) {
+        const wave = document.createElement("img");
+        const randomImage = waveImages[Math.floor(Math.random() * waveImages.length)];
+        wave.src = randomImage;
+        wave.alt = "";
+        wave.className = "results__wave-generated";
+        // Random positioning
+        const left = Math.random() * 100;
+        const bottom = 10 + Math.random() * 70; // 10% to 80% of wave container
+        const size = 4 + Math.random() * 6;
+        const opacity = 0.3 + Math.random() * 0.6;
+        const duration = 4 + Math.random() * 5;
+        const delay = -Math.random() * duration;
+        wave.style.position = "absolute";
+        wave.style.left = `${left}%`;
+        wave.style.bottom = `${bottom}%`;
+        wave.style.width = `${size}%`;
+        wave.style.opacity = `${opacity}`;
+        wave.style.zIndex = "1";
+        wave.style.animationDuration = `${duration}s`;
+        wave.style.animationDelay = `${delay}s`;
+        resultsWaveContainer.appendChild(wave);
     }
 }
 // ============================================
