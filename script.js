@@ -23,6 +23,7 @@ let snowIntervalId = null;
 let birdGenerationIntervalId = null;
 let experienceStarted = false;
 let manualCrossfadeInProgress = false;
+let resultAudio = null;
 /**
  * Start the entire experience - called when user clicks start button
  */
@@ -1044,6 +1045,8 @@ function showResultsSection(survivalProbability) {
     console.log(`🎯 Showing results: ${percentage}% survival (${isHopeful ? 'HOPE' : 'SAD'} state)`);
     // Render the results
     renderResults(isHopeful, percentage);
+    // Play audio for this outcome
+    playResultAudio(isHopeful);
     // Show section
     resultsSection.style.display = 'block';
     // Scroll to results
@@ -1086,6 +1089,39 @@ function renderResults(isHopeful, percentage) {
         ? 'Passengers with these characteristics had better odds of being rescued.'
         : 'Passengers with these characteristics rarely made it to the lifeboats.';
 }
+// ============================================
+// AUDIO MANAGEMENT FOR RESULTS
+// ============================================
+/**
+ * Play result audio based on outcome
+ */
+function playResultAudio(isHopeful) {
+    // Stop any existing result audio
+    stopResultAudio();
+    const audioPath = isHopeful
+        ? 'src/public/audio/result_hope.mp3'
+        : 'src/public/audio/result_sad.mp3';
+    console.log(`🔊 Playing result audio: ${isHopeful ? 'HOPE' : 'SAD'}`);
+    // Create new audio element
+    resultAudio = new Audio(audioPath);
+    resultAudio.volume = 1.0; // 100% volume
+    resultAudio.loop = false; // Play once
+    // Play audio
+    resultAudio.play().catch(err => {
+        console.log('Audio play error (likely user interaction required):', err);
+    });
+}
+/**
+ * Stop and cleanup result audio
+ */
+function stopResultAudio() {
+    if (resultAudio) {
+        console.log('🔇 Stopping result audio');
+        resultAudio.pause();
+        resultAudio.currentTime = 0;
+        resultAudio = null;
+    }
+}
 /**
  * Hide results section and return to search
  */
@@ -1095,6 +1131,8 @@ function hideResultsSection() {
     if (!resultsSection || !searchSection)
         return;
     console.log('🔙 Returning to search section');
+    // Stop result audio
+    stopResultAudio();
     // Scroll to search
     searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     // Hide results after scroll
@@ -1168,4 +1206,6 @@ window.addEventListener("beforeunload", () => {
     if (harborAudio) {
         harborAudio.pause();
     }
+    // Cleanup result audio
+    stopResultAudio();
 });
