@@ -26,6 +26,7 @@ const startButton = document.getElementById("start-button") as HTMLButtonElement
 let snowIntervalId: number | null = null;
 let birdGenerationIntervalId: number | null = null;
 let experienceStarted: boolean = false;
+let manualCrossfadeInProgress: boolean = false;
 
 /**
  * Start the entire experience - called when user clicks start button
@@ -627,11 +628,15 @@ document.addEventListener("DOMContentLoaded", (): void => {
     // Initialize Search section
     initSearchSection();
 
-    // Scroll Hero CTA to Search with smooth behavior
+    // Scroll Hero CTA to Search with smooth behavior and audio crossfade
     if (heroCta) {
         heroCta.addEventListener("click", (): void => {
             const searchSection = document.getElementById("search");
             if (searchSection) {
+                // Start audio crossfade immediately
+                crossfadeAudio('hero-to-search');
+
+                // Then scroll
                 searchSection.scrollIntoView({ behavior: "smooth", block: "start" });
             }
         });
@@ -640,6 +645,63 @@ document.addEventListener("DOMContentLoaded", (): void => {
     // Audio crossfade between sections
     setupAudioTransitions();
 });
+
+/**
+ * Crossfade between audio tracks smoothly
+ */
+function crossfadeAudio(direction: 'hero-to-search' | 'search-to-hero'): void {
+    if (!heroAudio || !harborAudio) return;
+
+    manualCrossfadeInProgress = true;
+
+    const fadeDuration = 1500; // 1.5 seconds
+    const steps = 30; // 30 steps = smooth transition
+    const stepDuration = fadeDuration / steps;
+
+    let currentStep = 0;
+
+    const fadeInterval = setInterval(() => {
+        currentStep++;
+        const progress = currentStep / steps; // 0.0 to 1.0
+
+        if (direction === 'hero-to-search') {
+            // Fade out hero
+            heroAudio.volume = Math.max(0, 0.8 * (1 - progress));
+
+            // Fade in harbor
+            if (harborAudio.paused && experienceStarted) {
+                harborAudio.play().catch(err => console.log("Harbor audio play error:", err));
+            }
+            harborAudio.volume = Math.min(0.8, 0.8 * progress);
+
+            // Stop hero when fully faded
+            if (currentStep >= steps) {
+                heroAudio.pause();
+                heroAudio.currentTime = 0;
+                clearInterval(fadeInterval);
+                manualCrossfadeInProgress = false;
+            }
+        } else {
+            // Fade out harbor
+            harborAudio.volume = Math.max(0, 0.8 * (1 - progress));
+
+            // Fade in hero
+            if (heroAudio.paused && experienceStarted) {
+                heroAudio.currentTime = 0;
+                heroAudio.play().catch(err => console.log("Hero audio play error:", err));
+            }
+            heroAudio.volume = Math.min(0.8, 0.8 * progress);
+
+            // Stop harbor when fully faded
+            if (currentStep >= steps) {
+                harborAudio.pause();
+                harborAudio.currentTime = 0;
+                clearInterval(fadeInterval);
+                manualCrossfadeInProgress = false;
+            }
+        }
+    }, stepDuration);
+}
 
 /**
  * Setup audio transitions between Hero and Search sections
@@ -665,6 +727,9 @@ function setupAudioTransitions(): void {
     // Observer for Search section
     const searchObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            // Don't interfere if manual crossfade is in progress
+            if (manualCrossfadeInProgress) return;
+
             const ratio = entry.intersectionRatio;
 
             if (ratio > 0.05) {
