@@ -1044,13 +1044,13 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 45%;
+  height: 90%;
   z-index: 3;
   pointer-events: none;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 3%;
+  padding-bottom: 2%;
 }
 
 .search__preview-seagulls {
@@ -1128,7 +1128,7 @@ body {
   }
 
   .search__preview-character-layer {
-    height: 45%;
+    height: 90%;
   }
 
   .search__character {
