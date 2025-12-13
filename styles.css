@@ -1271,13 +1271,13 @@ body {
   overflow: hidden;
 }
 
-/* Sky Layer (top half) */
+/* Sky Layer (top half + 15% more) */
 .results__background-sky {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 50%;
+  height: 65%; /* Increased from 50% */
   background-size: cover;
   background-position: center top;
   z-index: 1;
@@ -1291,33 +1291,65 @@ body {
   background-image: url('src/public/images/results/results_bg_sky_sad.png');
 }
 
-/* Sea Layer (bottom half - more sea) */
+/* Sea Layer (reduced by 15%) */
 .results__background-sea {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 50%;
+  height: 35%; /* Reduced from 50% to 35% */
   background-image: url('src/public/images/results/results_bg_sea.png');
   background-size: cover;
   background-position: center bottom;
   z-index: 1;
+  overflow: hidden;
 }
 
-/* Titanic Overlay - Closer to Horizon */
+/* Waves - Behind Everything in Sea Layer */
+.results__wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 80%; /* Cover 10% to 90% of sea layer */
+  background: linear-gradient(
+          to bottom,
+          transparent 0%,
+          rgba(255, 255, 255, 0.03) 12.5%, /* 10% of layer */
+          rgba(255, 255, 255, 0.05) 25%,
+          rgba(255, 255, 255, 0.03) 50%,
+          rgba(255, 255, 255, 0.05) 75%,
+          rgba(255, 255, 255, 0.03) 87.5%, /* 90% of layer */
+          transparent 100%
+  );
+  animation: wave-flow 15s linear infinite;
+  z-index: 0; /* Behind everything */
+}
+
+@keyframes wave-flow {
+  0% {
+    transform: translateX(0) translateY(0);
+  }
+  100% {
+    transform: translateX(-50%) translateY(2px);
+  }
+}
+
+/* Titanic Overlay - Closer to Horizon, 20% Bigger, Higher Contrast */
 .results__titanic {
   position: absolute;
   left: 0;
   top: 45%; /* Positioned near horizon (where sea meets sky) */
   transform: translateY(-50%);
-  height: 20%; /* Smaller to be near horizon */
+  height: 24%; /* Increased from 20% to 24% (20% bigger) */
   width: auto;
   z-index: 2;
   object-fit: contain;
   object-position: left center;
+  filter: contrast(1.3); /* Increased contrast */
 }
 
-/* Passenger Character - Bottom Right */
+/* Passenger Character - Bottom Right with Floating Animation */
 .results__character {
   position: absolute;
   bottom: 2%;
@@ -1328,10 +1360,21 @@ body {
   object-fit: contain;
   opacity: 0;
   transition: opacity 0.5s ease, transform 0.5s ease;
+  animation: results-character-float 4s ease-in-out infinite;
 }
 
 .results__character--visible {
   opacity: 1;
+}
+
+/* Floating animation for character */
+@keyframes results-character-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
 }
 
 /* Content Layer - Left Side, Condensed */
@@ -1452,6 +1495,41 @@ body {
   }
 }
 
+/* Snow Layer - In Front of Everything */
+.results__snow {
+  position: absolute;
+  inset: 0;
+  z-index: 10; /* Above all content */
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.results__snowflake {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  opacity: 0.8;
+  pointer-events: none;
+  animation: results-snow-fall linear infinite;
+}
+
+@keyframes results-snow-fall {
+  0% {
+    transform: translateY(var(--start-y, -10vh)) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(110vh) translateX(var(--drift, 50px));
+    opacity: 0;
+  }
+}
+
 /* ============================================
    RESPONSIVE DESIGN
    ============================================ */
@@ -1463,7 +1541,7 @@ body {
   }
 
   .results__titanic {
-    height: 18%;
+    height: 22%; /* Updated for 20% bigger */
   }
 
   .results__character {
@@ -1487,14 +1565,14 @@ body {
     display: none;
   }
 
-  /* Full sky background */
+  /* Adjust sky/sea for mobile with new proportions */
   .results__background-sky {
-    height: 40%;
+    height: 55%; /* Adjusted from 40% */
   }
 
-  /* More sea */
+  /* Less sea on mobile */
   .results__background-sea {
-    height: 60%;
+    height: 45%; /* Adjusted from 60% */
   }
 
   /* Vertical centered layout */

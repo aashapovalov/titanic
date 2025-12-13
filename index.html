@@ -214,7 +214,6 @@
         </div>
       </div>
 
-      <!-- Submit Button -->
       <button
               type="button"
               id="calculate-button"
@@ -241,25 +240,22 @@
 </section>
 
 <section id="results" class="results" style="display: none;">
-  <!-- Sky layer (top half) -->
   <div class="results__background-sky"></div>
 
-  <!-- Sea layer (bottom half) -->
-  <div class="results__background-sea"></div>
+  <div class="results__background-sea">
+    <div class="results__wave"></div>
+  </div>
 
-  <!-- Titanic overlay (near horizon, hidden on mobile) -->
   <img
           src="src/public/images/results/results_titanic_sink.png"
           class="results__titanic"
           alt="Titanic sinking"
   >
 
-  <!-- Content (left side, 50% width) -->
   <div class="results__content">
     <h1 class="results__title">You would probably</h1>
     <h2 class="results__emphasis"></h2>
 
-    <!-- Details grouped together -->
     <div class="results__details">
       <p class="results__percentage"></p>
       <p class="results__subtitle"></p>
@@ -268,12 +264,13 @@
     <button class="results__cta" id="try-again-btn">Try different parameters</button>
   </div>
 
-  <!-- Passenger character (bottom right) -->
   <img
           src=""
           class="results__character"
           alt="Passenger"
   >
+
+  <div class="results__snow" id="results-snow"></div>
 </section>
 
 <script src="script.js"></script>

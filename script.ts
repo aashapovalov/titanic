@@ -1233,6 +1233,9 @@ function showResultsSection(survivalProbability: number): void {
     // Play audio for this outcome
     playResultAudio(isHopeful);
 
+    // Start snow effect
+    startResultsSnow();
+
     // Show section
     resultsSection.style.display = 'block';
 
@@ -1326,6 +1329,73 @@ function stopResultAudio(): void {
     }
 }
 
+// ============================================
+// RESULTS SNOW EFFECT
+// ============================================
+
+let resultsSnowIntervalId: number | null = null;
+
+/**
+ * Start snow effect in results section
+ */
+function startResultsSnow(): void {
+    const resultsSnow = document.getElementById('results-snow');
+    if (!resultsSnow) return;
+
+    // Clear any existing snow
+    stopResultsSnow();
+    resultsSnow.innerHTML = '';
+
+    console.log('🌨️ Starting results snowfall...');
+
+    // Generate snowflakes periodically
+    resultsSnowIntervalId = window.setInterval(() => {
+        const flake = document.createElement('div');
+        flake.className = 'results__snowflake';
+
+        // Random size (2-6px)
+        const size = Math.random() * 4 + 2;
+        flake.style.width = `${size}px`;
+        flake.style.height = `${size}px`;
+
+        // Random horizontal position
+        flake.style.left = `${Math.random() * 100}%`;
+
+        // Random animation duration (8-15s)
+        const duration = Math.random() * 7 + 8;
+        flake.style.animationDuration = `${duration}s`;
+
+        // Random horizontal drift
+        const drift = (Math.random() - 0.5) * 100;
+        flake.style.setProperty('--drift', `${drift}px`);
+
+        // Random start position
+        flake.style.setProperty('--start-y', `-${Math.random() * 10}vh`);
+
+        resultsSnow.appendChild(flake);
+
+        // Remove after animation
+        setTimeout(() => {
+            flake.remove();
+        }, duration * 1000);
+    }, 200); // New flake every 200ms
+}
+
+/**
+ * Stop results snow effect
+ */
+function stopResultsSnow(): void {
+    if (resultsSnowIntervalId !== null) {
+        clearInterval(resultsSnowIntervalId);
+        resultsSnowIntervalId = null;
+    }
+
+    const resultsSnow = document.getElementById('results-snow');
+    if (resultsSnow) {
+        resultsSnow.innerHTML = '';
+    }
+}
+
 /**
  * Hide results section and return to search
  */
@@ -1339,6 +1409,9 @@ function hideResultsSection(): void {
 
     // Stop result audio
     stopResultAudio();
+
+    // Stop snow effect
+    stopResultsSnow();
 
     // Scroll to search
     searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1417,6 +1490,9 @@ window.addEventListener("beforeunload", (): void => {
     }
     if (searchBirdIntervalId !== null) {
         clearInterval(searchBirdIntervalId);
+    }
+    if (resultsSnowIntervalId !== null) {
+        clearInterval(resultsSnowIntervalId);
     }
     if (heroAudio) {
         heroAudio.pause();
