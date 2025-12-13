@@ -303,21 +303,55 @@ function generateFamilyMembers(mainPassenger) {
         // Add new members to existing family
         const newMembers = [];
         const ticketClass = mainPassenger.ticketClass;
-        // Generate based on main character's age group
-        switch (mainBucket) {
-            case 'baby':
-            case 'child':
-                generateChildFamily(mainPassenger, membersNeeded, newMembers);
-                break;
-            case 'youngAdult':
-                generateYoungAdultFamily(mainPassenger, membersNeeded, newMembers);
-                break;
-            case 'adult':
-                generateAdultFamily(mainPassenger, membersNeeded, newMembers);
-                break;
-            case 'senior':
-                generateSeniorFamily(mainPassenger, membersNeeded, newMembers);
-                break;
+        // Count existing adult-age members (including main character)
+        const mainIsAdultAge = mainBucket === 'youngAdult' || mainBucket === 'adult' || mainBucket === 'senior';
+        const existingAdultAgeCount = generatedFamily.filter(m => m.ageBucket === 'youngAdult' || m.ageBucket === 'adult' || m.ageBucket === 'senior').length + (mainIsAdultAge ? 1 : 0);
+        // If we already have 2+ adult-age people, force next members to be children
+        if (existingAdultAgeCount >= 2) {
+            // Force children for remaining members
+            for (let i = 0; i < membersNeeded; i++) {
+                const existingChildBuckets = new Set([...generatedFamily, ...newMembers]
+                    .filter(m => m.ageBucket === 'baby' || m.ageBucket === 'child')
+                    .map(m => m.ageBucket));
+                let childBucket;
+                if (!existingChildBuckets.has('baby')) {
+                    childBucket = 'baby';
+                }
+                else if (!existingChildBuckets.has('child')) {
+                    childBucket = 'child';
+                }
+                else {
+                    // Both exist, pick randomly
+                    childBucket = Math.random() < 0.5 ? 'baby' : 'child';
+                }
+                newMembers.push({
+                    gender: getRandomGender(),
+                    ageBucket: childBucket,
+                    age: getRandomAgeInBucket(childBucket),
+                    ticketClass,
+                    position: 0,
+                    zIndex: 0,
+                    isMainCharacter: false
+                });
+            }
+        }
+        else {
+            // Generate based on main character's age group (normal logic)
+            switch (mainBucket) {
+                case 'baby':
+                case 'child':
+                    generateChildFamily(mainPassenger, membersNeeded, newMembers);
+                    break;
+                case 'youngAdult':
+                    generateYoungAdultFamily(mainPassenger, membersNeeded, newMembers);
+                    break;
+                case 'adult':
+                    generateAdultFamily(mainPassenger, membersNeeded, newMembers);
+                    break;
+                case 'senior':
+                    generateSeniorFamily(mainPassenger, membersNeeded, newMembers);
+                    break;
+            }
         }
         // Ensure new members don't duplicate existing ones
         const existingKeys = new Set(generatedFamily.map(m => `${m.gender}_${m.ageBucket}`));
