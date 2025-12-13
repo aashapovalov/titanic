@@ -443,26 +443,41 @@ function generateYoungAdultFamily(main, count, family) {
         });
     }
     if (count >= 2) {
-        // Child
-        const childBucket = Math.random() < 0.5 ? 'baby' : 'child';
-        family.push({
-            gender: getRandomGender(),
-            ageBucket: childBucket,
-            age: getRandomAgeInBucket(childBucket),
-            ticketClass,
-            position: 0,
-            zIndex: 0,
-            isMainCharacter: false
-        });
+        // Second member: If first was spouse (youngAdult/adult), add child
+        // If first was parent (adult), add spouse or child
+        const firstMember = family[0];
+        if (firstMember.ageBucket === 'youngAdult' || firstMember.ageBucket === 'adult') {
+            // First member is adult-age, so add child
+            const childBucket = Math.random() < 0.5 ? 'baby' : 'child';
+            family.push({
+                gender: getRandomGender(),
+                ageBucket: childBucket,
+                age: getRandomAgeInBucket(childBucket),
+                ticketClass,
+                position: 0,
+                zIndex: 0,
+                isMainCharacter: false
+            });
+        }
     }
     if (count >= 3) {
-        // Second child - different bucket than first
-        const firstChildBucket = family[1].ageBucket;
-        const secondChildBucket = firstChildBucket === 'baby' ? 'child' : 'baby';
+        // Third member: ensure different bucket from second
+        const secondMember = family[1];
+        let thirdBucket;
+        if (secondMember.ageBucket === 'baby') {
+            thirdBucket = 'child';
+        }
+        else if (secondMember.ageBucket === 'child') {
+            thirdBucket = 'baby';
+        }
+        else {
+            // Shouldn't happen, but fallback to child
+            thirdBucket = 'child';
+        }
         family.push({
             gender: getRandomGender(),
-            ageBucket: secondChildBucket,
-            age: getRandomAgeInBucket(secondChildBucket),
+            ageBucket: thirdBucket,
+            age: getRandomAgeInBucket(thirdBucket),
             ticketClass,
             position: 0,
             zIndex: 0,
@@ -698,20 +713,21 @@ function updatePreviewCharacter() {
 function calculatePosition(index, total) {
     if (total === 1)
         return 50; // Center if alone
-    // Always use family of 4 spacing (20%, 35%, 50%, 65%, 80%)
-    // This ensures consistent distances regardless of family size
-    const positions = [20, 35, 50, 65, 80];
+    // Spread across almost full width for all family sizes
+    // Family 2: 30%, 70%
+    // Family 3: 20%, 50%, 80%
+    // Family 4: 15%, 35%, 65%, 85%
     if (total === 2) {
-        // Use positions 1 and 3 (35%, 65%)
-        return positions[index === 0 ? 1 : 3];
+        const positions = [30, 70];
+        return positions[index];
     }
     else if (total === 3) {
-        // Use positions 0, 2, 4 (20%, 50%, 80%)
-        const indices = [0, 2, 4];
-        return positions[indices[index]];
+        const positions = [20, 50, 80];
+        return positions[index];
     }
     else {
-        // Family of 4: use all positions
+        // Family of 4: spread across 70% of width (15% to 85%)
+        const positions = [15, 35, 65, 85];
         return positions[index];
     }
 }
