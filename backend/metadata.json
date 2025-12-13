@@ -1,0 +1,25 @@
+{
+  "model_type": "RandomForestClassifier",
+  "features": [
+    "Pclass",
+    "gender_code",
+    "Age",
+    "embarked_code",
+    "family_size"
+  ],
+  "target": [
+    "Survived"
+  ],
+  "created_at": "2025-12-13T13:59:14.023088Z",
+  "category_maps": {
+    "embarked_code": {
+      "S": 1,
+      "C": 2,
+      "Q": 3
+    },
+    "gender_code": {
+      "female": 1,
+      "male": 2
+    }
+  }
+}
