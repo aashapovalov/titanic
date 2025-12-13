@@ -828,6 +828,25 @@ body {
   font-weight: 600;
 }
 
+.search__option-button--active:hover {
+  background-color: var(--color-button-primary);
+  border-color: var(--color-button-primary);
+  color: var(--color-button-text);
+  filter: brightness(1.15);
+}
+
+.search__option-button--active:focus,
+.search__option-button--active:focus-visible {
+  outline: none;
+  filter: brightness(1.15);
+  box-shadow: 0 0 0 3px rgba(255, 180, 47, 0.3);
+}
+
+.search__option-button:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 2px;
+}
+
 .search__option-button--small {
   padding: 0.625rem 1.25rem;
   min-width: 50px;
@@ -858,6 +877,25 @@ body {
   border-color: var(--color-button-primary);
   background-color: rgba(255, 180, 47, 0.15);
   color: var(--color-button-primary);
+}
+
+.search__icon-button--active:hover {
+  background-color: rgba(255, 180, 47, 0.15);
+  border-color: var(--color-button-primary);
+  color: var(--color-button-primary);
+  filter: brightness(1.15);
+}
+
+.search__icon-button--active:focus,
+.search__icon-button--active:focus-visible {
+  outline: none;
+  filter: brightness(1.15);
+  box-shadow: 0 0 0 3px rgba(255, 180, 47, 0.3);
+}
+
+.search__icon-button:focus-visible {
+  outline: 2px solid var(--color-accent-blue);
+  outline-offset: 2px;
 }
 
 /* Age Slider */
