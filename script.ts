@@ -28,6 +28,10 @@ let birdGenerationIntervalId: number | null = null;
 let experienceStarted: boolean = false;
 let manualCrossfadeInProgress: boolean = false;
 
+// Track generated family to prevent unnecessary regeneration
+let generatedFamily: FamilyMember[] = [];
+let lastMainCharacterKey: string = '';
+
 /**
  * Start the entire experience - called when user clicks start button
  */
@@ -334,37 +338,137 @@ function hasDuplicateAppearance(family: FamilyMember[]): boolean {
 
 /**
  * Generate family members based on main character
+ * Only regenerates if main character's key characteristics change
  */
 function generateFamilyMembers(mainPassenger: PassengerState): FamilyMember[] {
     if (!mainPassenger.travelWithFamily || !mainPassenger.familySize) {
+        generatedFamily = [];
+        lastMainCharacterKey = '';
         return [];
     }
 
     const mainBucket = getAgeBucket(mainPassenger.age!);
-    const familySize = mainPassenger.familySize;
-    const membersToGenerate = familySize - 1; // Exclude main character
+    const currentFamilySize = mainPassenger.familySize;
 
-    const family: FamilyMember[] = [];
+    // Create key based on characteristics that matter for family generation
+    // (gender and ageBucket - NOT class or exact age)
+    const mainCharacterKey = `${mainPassenger.gender}_${mainBucket}`;
 
-    // Generate based on main character's age group
-    switch (mainBucket) {
-        case 'baby':
-        case 'child':
-            generateChildFamily(mainPassenger, membersToGenerate, family);
-            break;
-        case 'youngAdult':
-            generateYoungAdultFamily(mainPassenger, membersToGenerate, family);
-            break;
-        case 'adult':
-            generateAdultFamily(mainPassenger, membersToGenerate, family);
-            break;
-        case 'senior':
-            generateSeniorFamily(mainPassenger, membersToGenerate, family);
-            break;
+    // Check if we need to regenerate
+    const needsRegeneration = lastMainCharacterKey !== mainCharacterKey;
+    const needsMoreMembers = generatedFamily.length < (currentFamilySize - 1);
+    const hasTooManyMembers = generatedFamily.length > (currentFamilySize - 1);
+
+    if (!needsRegeneration && !needsMoreMembers && !hasTooManyMembers) {
+        // Just update class for existing family members
+        generatedFamily.forEach(member => {
+            member.ticketClass = mainPassenger.ticketClass!;
+        });
+        return generatedFamily;
     }
 
-    return family;
+    if (needsRegeneration) {
+        // Main character changed significantly - regenerate completely
+        generatedFamily = [];
+        lastMainCharacterKey = mainCharacterKey;
+    }
+
+    const membersToGenerate = currentFamilySize - 1; // Exclude main character
+    const membersNeeded = membersToGenerate - generatedFamily.length;
+
+    if (membersNeeded > 0) {
+        // Add new members to existing family
+        const newMembers: FamilyMember[] = [];
+        const ticketClass = mainPassenger.ticketClass!;
+
+        // Generate based on main character's age group
+        switch (mainBucket) {
+            case 'baby':
+            case 'child':
+                generateChildFamily(mainPassenger, membersNeeded, newMembers);
+                break;
+            case 'youngAdult':
+                generateYoungAdultFamily(mainPassenger, membersNeeded, newMembers);
+                break;
+            case 'adult':
+                generateAdultFamily(mainPassenger, membersNeeded, newMembers);
+                break;
+            case 'senior':
+                generateSeniorFamily(mainPassenger, membersNeeded, newMembers);
+                break;
+        }
+
+        // Ensure new members don't duplicate existing ones
+        const existingKeys = new Set(
+            generatedFamily.map(m => `${m.gender}_${m.ageBucket}`)
+        );
+
+        const uniqueNewMembers = newMembers.filter(member => {
+            const key = `${member.gender}_${member.ageBucket}`;
+            if (existingKeys.has(key)) {
+                return false;
+            }
+            existingKeys.add(key);
+            return true;
+        });
+
+        generatedFamily.push(...uniqueNewMembers);
+
+        // If we still need more and couldn't generate unique ones, try alternatives
+        while (generatedFamily.length < membersToGenerate && generatedFamily.length < 3) {
+            const altMember = generateAlternativeMember(mainPassenger, existingKeys);
+            if (altMember) {
+                generatedFamily.push(altMember);
+                existingKeys.add(`${altMember.gender}_${altMember.ageBucket}`);
+            } else {
+                break; // Can't generate more unique members
+            }
+        }
+    } else if (membersNeeded < 0) {
+        // Remove excess members
+        generatedFamily = generatedFamily.slice(0, membersToGenerate);
+    }
+
+    // Update ticket class for all members
+    generatedFamily.forEach(member => {
+        member.ticketClass = mainPassenger.ticketClass!;
+    });
+
+    return generatedFamily;
 }
+
+/**
+ * Generate an alternative family member to avoid duplicates
+ */
+function generateAlternativeMember(
+    mainPassenger: PassengerState,
+    usedKeys: Set<string>
+): FamilyMember | null {
+    const ticketClass = mainPassenger.ticketClass!;
+    const availableBuckets: AgeBucket[] = ['baby', 'child', 'youngAdult', 'adult', 'senior'];
+    const genders: Gender[] = ['male', 'female'];
+
+    // Try all combinations
+    for (const bucket of availableBuckets) {
+        for (const gender of genders) {
+            const key = `${gender}_${bucket}`;
+            if (!usedKeys.has(key)) {
+                return {
+                    gender,
+                    ageBucket: bucket,
+                    age: getRandomAgeInBucket(bucket),
+                    ticketClass,
+                    position: 0,
+                    zIndex: 0,
+                    isMainCharacter: false
+                };
+            }
+        }
+    }
+
+    return null; // All combinations used
+}
+
 
 /**
  * Generate family for baby/child main character
@@ -729,12 +833,21 @@ function updatePreviewCharacter(): void {
 function calculatePosition(index: number, total: number): number {
     if (total === 1) return 50; // Center if alone
 
-    // Spread across 60% of width (20% to 80%)
-    const startPos = 20;
-    const endPos = 80;
-    const spacing = (endPos - startPos) / (total - 1);
+    // Always use family of 4 spacing (20%, 35%, 50%, 65%, 80%)
+    // This ensures consistent distances regardless of family size
+    const positions = [20, 35, 50, 65, 80];
 
-    return startPos + (index * spacing);
+    if (total === 2) {
+        // Use positions 1 and 3 (35%, 65%)
+        return positions[index === 0 ? 1 : 3];
+    } else if (total === 3) {
+        // Use positions 0, 2, 4 (20%, 50%, 80%)
+        const indices = [0, 2, 4];
+        return positions[indices[index]];
+    } else {
+        // Family of 4: use all positions
+        return positions[index];
+    }
 }
 
 /**
