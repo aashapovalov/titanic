@@ -214,6 +214,16 @@ interface PassengerState {
     familySize: FamilySize | null;
 }
 
+interface FamilyMember {
+    gender: Gender;
+    age: number;
+    ageBucket: AgeBucket;
+    ticketClass: TicketClass;
+    position: number; // horizontal position %
+    zIndex: number;
+    isMainCharacter: boolean;
+}
+
 // Initialize passenger state
 const passengerState: PassengerState = {
     port: 'southampton', // Default to Southampton for background
@@ -277,6 +287,288 @@ function ageBucketToToken(bucket: AgeBucket): 'b' | 'c' | 'ya' | 'a' | 's' {
 }
 
 /**
+ * Get random age within a bucket
+ */
+function getRandomAgeInBucket(bucket: AgeBucket): number {
+    const ranges: Record<AgeBucket, [number, number]> = {
+        baby: [0, 3],
+        child: [4, 13],
+        youngAdult: [14, 29],
+        adult: [30, 49],
+        senior: [50, 80]
+    };
+    const [min, max] = ranges[bucket];
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+/**
+ * Get opposite gender
+ */
+function getOppositeGender(gender: Gender): Gender {
+    return gender === 'male' ? 'female' : 'male';
+}
+
+/**
+ * Get random gender
+ */
+function getRandomGender(): Gender {
+    return Math.random() < 0.5 ? 'male' : 'female';
+}
+
+/**
+ * Check if family has duplicate appearances (same gender + ageBucket + class)
+ */
+function hasDuplicateAppearance(family: FamilyMember[]): boolean {
+    const appearances = new Set<string>();
+
+    for (const member of family) {
+        const key = `${member.gender}_${member.ageBucket}_${member.ticketClass}`;
+        if (appearances.has(key)) {
+            return true;
+        }
+        appearances.add(key);
+    }
+
+    return false;
+}
+
+/**
+ * Generate family members based on main character
+ */
+function generateFamilyMembers(mainPassenger: PassengerState): FamilyMember[] {
+    if (!mainPassenger.travelWithFamily || !mainPassenger.familySize) {
+        return [];
+    }
+
+    const mainBucket = getAgeBucket(mainPassenger.age!);
+    const familySize = mainPassenger.familySize;
+    const membersToGenerate = familySize - 1; // Exclude main character
+
+    const family: FamilyMember[] = [];
+
+    // Generate based on main character's age group
+    switch (mainBucket) {
+        case 'baby':
+        case 'child':
+            generateChildFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'youngAdult':
+            generateYoungAdultFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'adult':
+            generateAdultFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'senior':
+            generateSeniorFamily(mainPassenger, membersToGenerate, family);
+            break;
+    }
+
+    return family;
+}
+
+/**
+ * Generate family for baby/child main character
+ */
+function generateChildFamily(main: PassengerState, count: number, family: FamilyMember[]): void {
+    const ticketClass = main.ticketClass!;
+
+    if (count >= 1) {
+        // First parent
+        const parent1Gender = getRandomGender();
+        family.push({
+            gender: parent1Gender,
+            ageBucket: Math.random() < 0.7 ? 'adult' : 'youngAdult',
+            age: getRandomAgeInBucket(Math.random() < 0.7 ? 'adult' : 'youngAdult'),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+
+    if (count >= 2) {
+        // Second parent (opposite gender)
+        family.push({
+            gender: getOppositeGender(family[0].gender),
+            ageBucket: family[0].ageBucket, // Same age group as first parent
+            age: getRandomAgeInBucket(family[0].ageBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+
+    if (count >= 3) {
+        // Sibling - different age bucket than main character
+        const mainBucket = getAgeBucket(main.age!);
+        const siblingBucket: AgeBucket = mainBucket === 'baby' ? 'child' : 'baby';
+
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: siblingBucket,
+            age: getRandomAgeInBucket(siblingBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+}
+
+/**
+ * Generate family for young adult main character
+ */
+function generateYoungAdultFamily(main: PassengerState, count: number, family: FamilyMember[]): void {
+    const ticketClass = main.ticketClass!;
+    const mainGender = main.gender!;
+
+    if (count >= 1) {
+        // Spouse or parent (50/50 chance)
+        const isSpouse = Math.random() < 0.5;
+        family.push({
+            gender: getOppositeGender(mainGender),
+            ageBucket: isSpouse ? 'youngAdult' : 'adult',
+            age: getRandomAgeInBucket(isSpouse ? 'youngAdult' : 'adult'),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+
+    if (count >= 2) {
+        // Child
+        const childBucket: AgeBucket = Math.random() < 0.5 ? 'baby' : 'child';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: childBucket,
+            age: getRandomAgeInBucket(childBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+
+    if (count >= 3) {
+        // Second child - different bucket than first
+        const firstChildBucket = family[1].ageBucket;
+        const secondChildBucket: AgeBucket = firstChildBucket === 'baby' ? 'child' : 'baby';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: secondChildBucket,
+            age: getRandomAgeInBucket(secondChildBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+}
+
+/**
+ * Generate family for adult main character
+ */
+function generateAdultFamily(main: PassengerState, count: number, family: FamilyMember[]): void {
+    const ticketClass = main.ticketClass!;
+    const mainGender = main.gender!;
+
+    if (count >= 1) {
+        // Spouse
+        const spouseBucket: AgeBucket = Math.random() < 0.7 ? 'adult' : 'youngAdult';
+        family.push({
+            gender: getOppositeGender(mainGender),
+            ageBucket: spouseBucket,
+            age: getRandomAgeInBucket(spouseBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+
+    if (count >= 2) {
+        // First child
+        const childBucket: AgeBucket = Math.random() < 0.5 ? 'baby' : 'child';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: childBucket,
+            age: getRandomAgeInBucket(childBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+
+    if (count >= 3) {
+        // Second child - different bucket
+        const firstChildBucket = family[1].ageBucket;
+        const secondChildBucket: AgeBucket = firstChildBucket === 'baby' ? 'child' : 'baby';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: secondChildBucket,
+            age: getRandomAgeInBucket(secondChildBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+}
+
+/**
+ * Generate family for senior main character
+ */
+function generateSeniorFamily(main: PassengerState, count: number, family: FamilyMember[]): void {
+    const ticketClass = main.ticketClass!;
+    const mainGender = main.gender!;
+
+    if (count >= 1) {
+        // Spouse
+        const spouseBucket: AgeBucket = Math.random() < 0.7 ? 'senior' : 'adult';
+        family.push({
+            gender: getOppositeGender(mainGender),
+            ageBucket: spouseBucket,
+            age: getRandomAgeInBucket(spouseBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+
+    if (count >= 2) {
+        // Adult child
+        const adultChildBucket: AgeBucket = Math.random() < 0.5 ? 'adult' : 'youngAdult';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: adultChildBucket,
+            age: getRandomAgeInBucket(adultChildBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+
+    if (count >= 3) {
+        // Grandchild
+        const grandchildBucket: AgeBucket = Math.random() < 0.5 ? 'baby' : 'child';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: grandchildBucket,
+            age: getRandomAgeInBucket(grandchildBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+}
+
+/**
  * Generate character filename based on passenger data
  */
 function getCharacterAsset(passenger: {
@@ -333,46 +625,95 @@ function updatePreviewBackground(): void {
 
 /**
  * Update character in preview
- * Only re-renders if character asset path has changed
+ * Shows main character and family members if applicable
  */
 function updatePreviewCharacter(): void {
     if (!previewCharacterLayer) return;
 
     // Show character if main passenger data is complete (ignore family size)
     if (isMainCharacterReady(passengerState)) {
-        const characterPath = getCharacterAsset({
+        // Generate family members
+        const familyMembers = generateFamilyMembers(passengerState);
+
+        // Create main character as family member
+        const mainCharacter: FamilyMember = {
             gender: passengerState.gender!,
             age: passengerState.age!,
-            ticketClass: passengerState.ticketClass!
-        });
-
-        // Only update if character has changed
-        if (characterPath === lastRenderedCharacter) {
-            return; // Character hasn't changed, skip re-render
-        }
-
-        lastRenderedCharacter = characterPath;
-
-        // Clear existing character
-        previewCharacterLayer.innerHTML = '';
-
-        const character = document.createElement('img');
-        character.className = 'search__character';
-        character.src = characterPath;
-        character.alt = 'Your passenger character';
-
-        // Handle missing image
-        character.onerror = () => {
-            character.src = 'src/public/images/search/characters/placeholder.png';
+            ageBucket: getAgeBucket(passengerState.age!),
+            ticketClass: passengerState.ticketClass!,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: true
         };
 
-        // Add to preview
-        previewCharacterLayer.appendChild(character);
+        // Combine and sort by age
+        const allMembers = [mainCharacter, ...familyMembers];
+        allMembers.sort((a, b) => a.age - b.age);
 
-        // Trigger visible animation
-        setTimeout(() => {
-            character.classList.add('search__character--visible');
-        }, 50);
+        // Assign positions and z-index
+        allMembers.forEach((member, index) => {
+            member.position = calculatePosition(index, allMembers.length);
+            member.zIndex = allMembers.length - index;
+        });
+
+        // Generate cache key for current family composition
+        const familyKey = allMembers
+            .map(m => `${m.gender}_${m.ageBucket}_${m.ticketClass}_${m.position}`)
+            .join('|');
+
+        // Only re-render if family composition changed
+        if (familyKey === lastRenderedCharacter) {
+            return;
+        }
+
+        lastRenderedCharacter = familyKey;
+
+        // Clear existing characters
+        previewCharacterLayer.innerHTML = '';
+
+        // Render all family members
+        allMembers.forEach(member => {
+            const characterPath = getCharacterAsset({
+                gender: member.gender,
+                age: member.age,
+                ticketClass: member.ticketClass
+            });
+
+            const character = document.createElement('img');
+            character.className = 'search__character';
+            character.src = characterPath;
+            character.alt = member.isMainCharacter ? 'Your character' : 'Family member';
+
+            // Positioning and styling
+            character.style.position = 'absolute';
+            character.style.left = `${member.position}%`;
+            character.style.bottom = '0';
+            character.style.transform = 'translateX(-50%)';
+            character.style.zIndex = member.zIndex.toString();
+
+            // Different styling for main vs family
+            if (member.isMainCharacter) {
+                character.style.filter = 'contrast(1.3)';
+                character.style.opacity = '1';
+            } else {
+                character.style.filter = 'contrast(1.0)';
+                character.style.opacity = '0.9';
+            }
+
+            // Handle missing image
+            character.onerror = () => {
+                character.src = 'src/public/images/search/characters/placeholder.png';
+            };
+
+            // Add to preview
+            previewCharacterLayer.appendChild(character);
+
+            // Trigger visible animation
+            setTimeout(() => {
+                character.classList.add('search__character--visible');
+            }, 50 + (allMembers.indexOf(member) * 100)); // Stagger animations
+        });
+
     } else {
         // Clear character if profile incomplete
         if (lastRenderedCharacter !== null) {
@@ -380,6 +721,20 @@ function updatePreviewCharacter(): void {
             lastRenderedCharacter = null;
         }
     }
+}
+
+/**
+ * Calculate horizontal position for family member
+ */
+function calculatePosition(index: number, total: number): number {
+    if (total === 1) return 50; // Center if alone
+
+    // Spread across 60% of width (20% to 80%)
+    const startPos = 20;
+    const endPos = 80;
+    const spacing = (endPos - startPos) / (total - 1);
+
+    return startPos + (index * spacing);
 }
 
 /**

@@ -1047,9 +1047,7 @@ body {
   height: 90%;
   z-index: 3;
   pointer-events: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
+  display: block;
   padding-bottom: 2%;
 }
 
@@ -1128,7 +1126,7 @@ body {
   }
 
   .search__preview-character-layer {
-    height: 90%;
+    height: 45%;
   }
 
   .search__character {

@@ -2,7 +2,7 @@
 // HERO SECTION
 // =====================
 // Bird sprite frames
-var birdFrames = [
+const birdFrames = [
     "src/public/images/hero/bird_ph1.png",
     "src/public/images/hero/bird_ph2.png",
     "src/public/images/hero/bird_ph3.png",
@@ -13,16 +13,16 @@ var birdFrames = [
     "src/public/images/hero/bird_ph8.png",
     "src/public/images/hero/bird_ph9.png",
 ];
-var snowLayer = document.getElementById("snow-layer");
-var heroCta = document.getElementById("hero-cta");
-var heroAudio = document.getElementById("hero-audio");
-var heroScene = document.querySelector(".hero__scene");
-var startScreen = document.getElementById("start-screen");
-var startButton = document.getElementById("start-button");
-var snowIntervalId = null;
-var birdGenerationIntervalId = null;
-var experienceStarted = false;
-var manualCrossfadeInProgress = false;
+const snowLayer = document.getElementById("snow-layer");
+const heroCta = document.getElementById("hero-cta");
+const heroAudio = document.getElementById("hero-audio");
+const heroScene = document.querySelector(".hero__scene");
+const startScreen = document.getElementById("start-screen");
+const startButton = document.getElementById("start-button");
+let snowIntervalId = null;
+let birdGenerationIntervalId = null;
+let experienceStarted = false;
+let manualCrossfadeInProgress = false;
 /**
  * Start the entire experience - called when user clicks start button
  */
@@ -41,14 +41,14 @@ function startExperience() {
         heroAudio.volume = 0.5;
         heroAudio.loop = false;
         heroAudio.currentTime = 0;
-        heroAudio.play().catch(function (error) {
+        heroAudio.play().catch((error) => {
             console.log("Audio play error:", error);
         });
     }
     // Start all animations immediately
     startSnowfall();
     // Start seagulls after 5 seconds
-    setTimeout(function () {
+    setTimeout(() => {
         startSeagullGeneration();
     }, 5000);
 }
@@ -58,23 +58,23 @@ function startExperience() {
 function createSeagull() {
     if (!heroScene)
         return;
-    var bird = document.createElement("img");
+    const bird = document.createElement("img");
     bird.src = birdFrames[0];
     bird.alt = "Seagull";
     bird.className = "hero__bird hero__bird--dynamic";
-    var size = 6 + Math.random() * 4;
-    var topPosition = 8 + Math.random() * 12;
-    var duration = 10 + Math.random() * 6;
-    bird.style.width = "".concat(size, "%");
-    bird.style.top = "".concat(topPosition, "%");
-    bird.style.animationDuration = "".concat(duration, "s");
+    const size = 6 + Math.random() * 4;
+    const topPosition = 8 + Math.random() * 12;
+    const duration = 10 + Math.random() * 6;
+    bird.style.width = `${size}%`;
+    bird.style.top = `${topPosition}%`;
+    bird.style.animationDuration = `${duration}s`;
     heroScene.appendChild(bird);
-    var frameIndex = 0;
-    var spriteInterval = setInterval(function () {
+    let frameIndex = 0;
+    const spriteInterval = setInterval(() => {
         frameIndex = (frameIndex + 1) % birdFrames.length;
         bird.src = birdFrames[frameIndex];
     }, 100);
-    setTimeout(function () {
+    setTimeout(() => {
         clearInterval(spriteInterval);
         if (bird.parentNode === heroScene) {
             heroScene.removeChild(bird);
@@ -86,12 +86,12 @@ function createSeagull() {
  */
 function startSeagullGeneration() {
     createSeagull();
-    birdGenerationIntervalId = window.setInterval(function () {
+    birdGenerationIntervalId = window.setInterval(() => {
         createSeagull();
     }, 8000 + Math.random() * 7000);
 }
 // Wave image paths
-var waveImages = [
+const waveImages = [
     "src/public/images/hero/hero_wave_dark_l.png",
     "src/public/images/hero/hero_wave_light_l.png",
     "src/public/images/hero/hero_wave_dark_s.png",
@@ -103,30 +103,30 @@ var waveImages = [
 function generateRandomWaves() {
     if (!heroScene)
         return;
-    var numberOfWaves = 30 + Math.floor(Math.random() * 11);
-    var seaHeightPercent = 55;
-    var seaStartPercent = 0;
-    for (var i = 0; i < numberOfWaves; i++) {
-        var wave = document.createElement("img");
-        var randomImage = waveImages[Math.floor(Math.random() * waveImages.length)];
+    const numberOfWaves = 30 + Math.floor(Math.random() * 11);
+    const seaHeightPercent = 55;
+    const seaStartPercent = 0;
+    for (let i = 0; i < numberOfWaves; i++) {
+        const wave = document.createElement("img");
+        const randomImage = waveImages[Math.floor(Math.random() * waveImages.length)];
         wave.src = randomImage;
         wave.alt = "";
         wave.className = "hero__wave hero__wave--generated";
-        var left = Math.random() * 100;
-        var wavePositionInSea = 0.1 + Math.random() * 0.7;
-        var bottom = seaStartPercent + (seaHeightPercent * wavePositionInSea);
-        var size = 4 + Math.random() * 6;
-        var opacity = 0.3 + Math.random() * 0.6;
-        var duration = 4 + Math.random() * 5;
-        var delay = -Math.random() * duration;
+        const left = Math.random() * 100;
+        const wavePositionInSea = 0.1 + Math.random() * 0.7;
+        const bottom = seaStartPercent + (seaHeightPercent * wavePositionInSea);
+        const size = 4 + Math.random() * 6;
+        const opacity = 0.3 + Math.random() * 0.6;
+        const duration = 4 + Math.random() * 5;
+        const delay = -Math.random() * duration;
         wave.style.position = "absolute";
-        wave.style.left = "".concat(left, "%");
-        wave.style.bottom = "".concat(bottom, "%");
-        wave.style.width = "".concat(size, "%");
-        wave.style.opacity = "".concat(opacity);
+        wave.style.left = `${left}%`;
+        wave.style.bottom = `${bottom}%`;
+        wave.style.width = `${size}%`;
+        wave.style.opacity = `${opacity}`;
         wave.style.zIndex = "2";
-        wave.style.animationDuration = "".concat(duration, "s");
-        wave.style.animationDelay = "".concat(delay, "s");
+        wave.style.animationDuration = `${duration}s`;
+        wave.style.animationDelay = `${delay}s`;
         heroScene.appendChild(wave);
     }
 }
@@ -136,36 +136,36 @@ function generateRandomWaves() {
 function startSnowfall() {
     if (!snowLayer)
         return;
-    var createSnowflake = function () {
-        var flake = document.createElement("div");
+    const createSnowflake = () => {
+        const flake = document.createElement("div");
         flake.className = "snowflake";
-        var startLeft = Math.random() * 100;
-        var duration = 8000 + Math.random() * 6000;
-        var startY = -10 - (Math.random() * 20);
-        var drift = (Math.random() - 0.5) * 100;
-        var size = 4 + Math.random() * 3;
-        flake.style.left = "".concat(startLeft, "vw");
-        flake.style.width = "".concat(size, "px");
-        flake.style.height = "".concat(size, "px");
-        flake.style.animationDuration = "".concat(duration, "ms");
-        flake.style.setProperty('--drift', "".concat(drift, "px"));
-        flake.style.setProperty('--start-y', "".concat(startY, "vh"));
+        const startLeft = Math.random() * 100;
+        const duration = 8000 + Math.random() * 6000;
+        const startY = -10 - (Math.random() * 20);
+        const drift = (Math.random() - 0.5) * 100;
+        const size = 4 + Math.random() * 3;
+        flake.style.left = `${startLeft}vw`;
+        flake.style.width = `${size}px`;
+        flake.style.height = `${size}px`;
+        flake.style.animationDuration = `${duration}ms`;
+        flake.style.setProperty('--drift', `${drift}px`);
+        flake.style.setProperty('--start-y', `${startY}vh`);
         if (snowLayer) {
             snowLayer.appendChild(flake);
         }
-        setTimeout(function () {
+        setTimeout(() => {
             if (snowLayer && flake.parentNode === snowLayer) {
                 snowLayer.removeChild(flake);
             }
         }, duration + 100);
     };
-    for (var i = 0; i < 50; i++) {
+    for (let i = 0; i < 50; i++) {
         setTimeout(createSnowflake, i * 100);
     }
     snowIntervalId = window.setInterval(createSnowflake, 300);
 }
 // Initialize passenger state
-var passengerState = {
+const passengerState = {
     port: 'southampton', // Default to Southampton for background
     age: 30, // Default age from slider
     gender: null,
@@ -174,27 +174,27 @@ var passengerState = {
     familySize: null
 };
 // Track last rendered character to avoid unnecessary re-renders
-var lastRenderedCharacter = null;
+let lastRenderedCharacter = null;
 // Port background images
-var PORT_BACKGROUNDS = {
+const PORT_BACKGROUNDS = {
     southampton: 'src/public/images/search/ports/southampton.png',
     cherbourg: 'src/public/images/search/ports/cherbourg.png',
     queenstown: 'src/public/images/search/ports/queenstown.png'
 };
 // DOM Elements
-var searchPreview = document.getElementById('search-preview');
-var previewBackground = document.getElementById('preview-background');
-var previewCharacterLayer = document.getElementById('preview-character-layer');
-var previewSeagulls = document.getElementById('preview-seagulls');
-var previewSnow = document.getElementById('preview-snow');
-var ageSlider = document.getElementById('age');
-var ageValue = document.getElementById('age-value');
-var familyCheckbox = document.getElementById('travelWithFamily');
-var familySizeField = document.getElementById('family-size-field');
-var calculateButton = document.getElementById('calculate-button');
-var harborAudio = document.getElementById('harbor-audio');
-var searchSnowIntervalId = null;
-var searchBirdIntervalId = null;
+const searchPreview = document.getElementById('search-preview');
+const previewBackground = document.getElementById('preview-background');
+const previewCharacterLayer = document.getElementById('preview-character-layer');
+const previewSeagulls = document.getElementById('preview-seagulls');
+const previewSnow = document.getElementById('preview-snow');
+const ageSlider = document.getElementById('age');
+const ageValue = document.getElementById('age-value');
+const familyCheckbox = document.getElementById('travelWithFamily');
+const familySizeField = document.getElementById('family-size-field');
+const calculateButton = document.getElementById('calculate-button');
+const harborAudio = document.getElementById('harbor-audio');
+let searchSnowIntervalId = null;
+let searchBirdIntervalId = null;
 /**
  * Age to bucket mapping (boundaries: 0-4, 4-14, 14-30, 30-50, 50+)
  * Rule: Lower bound inclusive, upper bound exclusive
@@ -214,7 +214,7 @@ function getAgeBucket(age) {
  * Convert age bucket to filename token
  */
 function ageBucketToToken(bucket) {
-    var tokenMap = {
+    const tokenMap = {
         baby: 'b',
         child: 'c',
         youngAdult: 'ya',
@@ -224,15 +224,269 @@ function ageBucketToToken(bucket) {
     return tokenMap[bucket];
 }
 /**
+ * Get random age within a bucket
+ */
+function getRandomAgeInBucket(bucket) {
+    const ranges = {
+        baby: [0, 3],
+        child: [4, 13],
+        youngAdult: [14, 29],
+        adult: [30, 49],
+        senior: [50, 80]
+    };
+    const [min, max] = ranges[bucket];
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+/**
+ * Get opposite gender
+ */
+function getOppositeGender(gender) {
+    return gender === 'male' ? 'female' : 'male';
+}
+/**
+ * Get random gender
+ */
+function getRandomGender() {
+    return Math.random() < 0.5 ? 'male' : 'female';
+}
+/**
+ * Check if family has duplicate appearances (same gender + ageBucket + class)
+ */
+function hasDuplicateAppearance(family) {
+    const appearances = new Set();
+    for (const member of family) {
+        const key = `${member.gender}_${member.ageBucket}_${member.ticketClass}`;
+        if (appearances.has(key)) {
+            return true;
+        }
+        appearances.add(key);
+    }
+    return false;
+}
+/**
+ * Generate family members based on main character
+ */
+function generateFamilyMembers(mainPassenger) {
+    if (!mainPassenger.travelWithFamily || !mainPassenger.familySize) {
+        return [];
+    }
+    const mainBucket = getAgeBucket(mainPassenger.age);
+    const familySize = mainPassenger.familySize;
+    const membersToGenerate = familySize - 1; // Exclude main character
+    const family = [];
+    // Generate based on main character's age group
+    switch (mainBucket) {
+        case 'baby':
+        case 'child':
+            generateChildFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'youngAdult':
+            generateYoungAdultFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'adult':
+            generateAdultFamily(mainPassenger, membersToGenerate, family);
+            break;
+        case 'senior':
+            generateSeniorFamily(mainPassenger, membersToGenerate, family);
+            break;
+    }
+    return family;
+}
+/**
+ * Generate family for baby/child main character
+ */
+function generateChildFamily(main, count, family) {
+    const ticketClass = main.ticketClass;
+    if (count >= 1) {
+        // First parent
+        const parent1Gender = getRandomGender();
+        family.push({
+            gender: parent1Gender,
+            ageBucket: Math.random() < 0.7 ? 'adult' : 'youngAdult',
+            age: getRandomAgeInBucket(Math.random() < 0.7 ? 'adult' : 'youngAdult'),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 2) {
+        // Second parent (opposite gender)
+        family.push({
+            gender: getOppositeGender(family[0].gender),
+            ageBucket: family[0].ageBucket, // Same age group as first parent
+            age: getRandomAgeInBucket(family[0].ageBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 3) {
+        // Sibling - different age bucket than main character
+        const mainBucket = getAgeBucket(main.age);
+        const siblingBucket = mainBucket === 'baby' ? 'child' : 'baby';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: siblingBucket,
+            age: getRandomAgeInBucket(siblingBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+}
+/**
+ * Generate family for young adult main character
+ */
+function generateYoungAdultFamily(main, count, family) {
+    const ticketClass = main.ticketClass;
+    const mainGender = main.gender;
+    if (count >= 1) {
+        // Spouse or parent (50/50 chance)
+        const isSpouse = Math.random() < 0.5;
+        family.push({
+            gender: getOppositeGender(mainGender),
+            ageBucket: isSpouse ? 'youngAdult' : 'adult',
+            age: getRandomAgeInBucket(isSpouse ? 'youngAdult' : 'adult'),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 2) {
+        // Child
+        const childBucket = Math.random() < 0.5 ? 'baby' : 'child';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: childBucket,
+            age: getRandomAgeInBucket(childBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 3) {
+        // Second child - different bucket than first
+        const firstChildBucket = family[1].ageBucket;
+        const secondChildBucket = firstChildBucket === 'baby' ? 'child' : 'baby';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: secondChildBucket,
+            age: getRandomAgeInBucket(secondChildBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+}
+/**
+ * Generate family for adult main character
+ */
+function generateAdultFamily(main, count, family) {
+    const ticketClass = main.ticketClass;
+    const mainGender = main.gender;
+    if (count >= 1) {
+        // Spouse
+        const spouseBucket = Math.random() < 0.7 ? 'adult' : 'youngAdult';
+        family.push({
+            gender: getOppositeGender(mainGender),
+            ageBucket: spouseBucket,
+            age: getRandomAgeInBucket(spouseBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 2) {
+        // First child
+        const childBucket = Math.random() < 0.5 ? 'baby' : 'child';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: childBucket,
+            age: getRandomAgeInBucket(childBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 3) {
+        // Second child - different bucket
+        const firstChildBucket = family[1].ageBucket;
+        const secondChildBucket = firstChildBucket === 'baby' ? 'child' : 'baby';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: secondChildBucket,
+            age: getRandomAgeInBucket(secondChildBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+}
+/**
+ * Generate family for senior main character
+ */
+function generateSeniorFamily(main, count, family) {
+    const ticketClass = main.ticketClass;
+    const mainGender = main.gender;
+    if (count >= 1) {
+        // Spouse
+        const spouseBucket = Math.random() < 0.7 ? 'senior' : 'adult';
+        family.push({
+            gender: getOppositeGender(mainGender),
+            ageBucket: spouseBucket,
+            age: getRandomAgeInBucket(spouseBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 2) {
+        // Adult child
+        const adultChildBucket = Math.random() < 0.5 ? 'adult' : 'youngAdult';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: adultChildBucket,
+            age: getRandomAgeInBucket(adultChildBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+    if (count >= 3) {
+        // Grandchild
+        const grandchildBucket = Math.random() < 0.5 ? 'baby' : 'child';
+        family.push({
+            gender: getRandomGender(),
+            ageBucket: grandchildBucket,
+            age: getRandomAgeInBucket(grandchildBucket),
+            ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: false
+        });
+    }
+}
+/**
  * Generate character filename based on passenger data
  */
 function getCharacterAsset(passenger) {
-    var genderToken = passenger.gender === 'male' ? 'm' : 'f';
-    var ageBucket = getAgeBucket(passenger.age);
-    var ageToken = ageBucketToToken(ageBucket);
-    var classToken = passenger.ticketClass.toString();
-    var filename = "".concat(genderToken, "_").concat(ageToken, "_").concat(classToken, ".png");
-    return "src/public/images/search/characters/".concat(filename);
+    const genderToken = passenger.gender === 'male' ? 'm' : 'f';
+    const ageBucket = getAgeBucket(passenger.age);
+    const ageToken = ageBucketToToken(ageBucket);
+    const classToken = passenger.ticketClass.toString();
+    const filename = `${genderToken}_${ageToken}_${classToken}.png`;
+    return `src/public/images/search/characters/${filename}`;
 }
 /**
  * Check if main passenger character should be displayed
@@ -259,7 +513,7 @@ function updatePreviewBackground() {
     if (!previewBackground)
         return;
     if (passengerState.port) {
-        previewBackground.style.backgroundImage = "url('".concat(PORT_BACKGROUNDS[passengerState.port], "')");
+        previewBackground.style.backgroundImage = `url('${PORT_BACKGROUNDS[passengerState.port]}')`;
         previewBackground.classList.add('search__preview-background--visible');
     }
     else {
@@ -268,39 +522,81 @@ function updatePreviewBackground() {
 }
 /**
  * Update character in preview
- * Only re-renders if character asset path has changed
+ * Shows main character and family members if applicable
  */
 function updatePreviewCharacter() {
     if (!previewCharacterLayer)
         return;
     // Show character if main passenger data is complete (ignore family size)
     if (isMainCharacterReady(passengerState)) {
-        var characterPath = getCharacterAsset({
+        // Generate family members
+        const familyMembers = generateFamilyMembers(passengerState);
+        // Create main character as family member
+        const mainCharacter = {
             gender: passengerState.gender,
             age: passengerState.age,
-            ticketClass: passengerState.ticketClass
-        });
-        // Only update if character has changed
-        if (characterPath === lastRenderedCharacter) {
-            return; // Character hasn't changed, skip re-render
-        }
-        lastRenderedCharacter = characterPath;
-        // Clear existing character
-        previewCharacterLayer.innerHTML = '';
-        var character_1 = document.createElement('img');
-        character_1.className = 'search__character';
-        character_1.src = characterPath;
-        character_1.alt = 'Your passenger character';
-        // Handle missing image
-        character_1.onerror = function () {
-            character_1.src = 'src/public/images/search/characters/placeholder.png';
+            ageBucket: getAgeBucket(passengerState.age),
+            ticketClass: passengerState.ticketClass,
+            position: 0,
+            zIndex: 0,
+            isMainCharacter: true
         };
-        // Add to preview
-        previewCharacterLayer.appendChild(character_1);
-        // Trigger visible animation
-        setTimeout(function () {
-            character_1.classList.add('search__character--visible');
-        }, 50);
+        // Combine and sort by age
+        const allMembers = [mainCharacter, ...familyMembers];
+        allMembers.sort((a, b) => a.age - b.age);
+        // Assign positions and z-index
+        allMembers.forEach((member, index) => {
+            member.position = calculatePosition(index, allMembers.length);
+            member.zIndex = allMembers.length - index;
+        });
+        // Generate cache key for current family composition
+        const familyKey = allMembers
+            .map(m => `${m.gender}_${m.ageBucket}_${m.ticketClass}_${m.position}`)
+            .join('|');
+        // Only re-render if family composition changed
+        if (familyKey === lastRenderedCharacter) {
+            return;
+        }
+        lastRenderedCharacter = familyKey;
+        // Clear existing characters
+        previewCharacterLayer.innerHTML = '';
+        // Render all family members
+        allMembers.forEach(member => {
+            const characterPath = getCharacterAsset({
+                gender: member.gender,
+                age: member.age,
+                ticketClass: member.ticketClass
+            });
+            const character = document.createElement('img');
+            character.className = 'search__character';
+            character.src = characterPath;
+            character.alt = member.isMainCharacter ? 'Your character' : 'Family member';
+            // Positioning and styling
+            character.style.position = 'absolute';
+            character.style.left = `${member.position}%`;
+            character.style.bottom = '0';
+            character.style.transform = 'translateX(-50%)';
+            character.style.zIndex = member.zIndex.toString();
+            // Different styling for main vs family
+            if (member.isMainCharacter) {
+                character.style.filter = 'contrast(1.3)';
+                character.style.opacity = '1';
+            }
+            else {
+                character.style.filter = 'contrast(1.0)';
+                character.style.opacity = '0.9';
+            }
+            // Handle missing image
+            character.onerror = () => {
+                character.src = 'src/public/images/search/characters/placeholder.png';
+            };
+            // Add to preview
+            previewCharacterLayer.appendChild(character);
+            // Trigger visible animation
+            setTimeout(() => {
+                character.classList.add('search__character--visible');
+            }, 50 + (allMembers.indexOf(member) * 100)); // Stagger animations
+        });
     }
     else {
         // Clear character if profile incomplete
@@ -309,6 +605,18 @@ function updatePreviewCharacter() {
             lastRenderedCharacter = null;
         }
     }
+}
+/**
+ * Calculate horizontal position for family member
+ */
+function calculatePosition(index, total) {
+    if (total === 1)
+        return 50; // Center if alone
+    // Spread across 60% of width (20% to 80%)
+    const startPos = 20;
+    const endPos = 80;
+    const spacing = (endPos - startPos) / (total - 1);
+    return startPos + (index * spacing);
 }
 /**
  * Update calculate button state
@@ -330,14 +638,13 @@ function updatePreview() {
  * Handle option button clicks (port, gender, class, family size)
  */
 function handleOptionButtonClick(button) {
-    var _a;
-    var field = button.dataset.field;
-    var value = button.dataset.value;
+    const field = button.dataset.field;
+    const value = button.dataset.value;
     if (!field || !value)
         return;
     // Remove active class from siblings
-    var siblings = (_a = button.parentElement) === null || _a === void 0 ? void 0 : _a.querySelectorAll("[data-field=\"".concat(field, "\"]"));
-    siblings === null || siblings === void 0 ? void 0 : siblings.forEach(function (btn) { return btn.classList.remove('search__option-button--active', 'search__icon-button--active'); });
+    const siblings = button.parentElement?.querySelectorAll(`[data-field="${field}"]`);
+    siblings?.forEach(btn => btn.classList.remove('search__option-button--active', 'search__icon-button--active'));
     // Add active class to clicked button
     if (button.classList.contains('search__icon-button')) {
         button.classList.add('search__icon-button--active');
@@ -368,7 +675,7 @@ function handleOptionButtonClick(button) {
 function handleAgeChange() {
     if (!ageSlider || !ageValue)
         return;
-    var age = parseInt(ageSlider.value, 10);
+    const age = parseInt(ageSlider.value, 10);
     passengerState.age = age;
     ageValue.textContent = age.toString();
     updatePreview();
@@ -387,7 +694,7 @@ function handleFamilyCheckboxChange() {
         familySizeField.style.display = 'none';
         passengerState.familySize = null;
         // Remove active state from family size buttons
-        familySizeField.querySelectorAll('.search__option-button').forEach(function (btn) {
+        familySizeField.querySelectorAll('.search__option-button').forEach(btn => {
             btn.classList.remove('search__option-button--active');
         });
     }
@@ -400,13 +707,13 @@ function initSearchSection() {
     console.log('🚀 initSearchSection() called!');
     console.log('🎯 About to start snow and seagulls...');
     // Set default port (Southampton) as active
-    var defaultPortButton = document.querySelector('[data-field="port"][data-value="southampton"]');
+    const defaultPortButton = document.querySelector('[data-field="port"][data-value="southampton"]');
     if (defaultPortButton) {
         defaultPortButton.classList.add('search__option-button--active');
     }
     // Attach event listeners to all option buttons
-    document.querySelectorAll('[data-field]').forEach(function (button) {
-        button.addEventListener('click', function () { return handleOptionButtonClick(button); });
+    document.querySelectorAll('[data-field]').forEach(button => {
+        button.addEventListener('click', () => handleOptionButtonClick(button));
     });
     // Age slider
     if (ageSlider) {
@@ -434,18 +741,29 @@ function startSearchSnowfall() {
         console.error('❌ previewBackground is null!');
         return;
     }
-    var createSnowflake = function () {
-        var flake = document.createElement("div");
+    const createSnowflake = () => {
+        const flake = document.createElement("div");
         flake.className = "snowflake";
         // Set inline styles for guaranteed positioning
-        flake.style.cssText = "\n            position: absolute;\n            left: ".concat(Math.random() * 100, "%;\n            top: 0;\n            width: ").concat(4 + Math.random() * 3, "px;\n            height: ").concat(4 + Math.random() * 3, "px;\n            border-radius: 50%;\n            background-color: rgba(173, 216, 230, 0.8);\n            box-shadow: 0 0 3px rgba(173, 216, 230, 0.6);\n            pointer-events: none;\n            z-index: 10;\n        ");
-        var duration = 8000 + Math.random() * 6000;
-        var drift = (Math.random() - 0.5) * 100;
-        flake.style.animationDuration = "".concat(duration, "ms");
+        flake.style.cssText = `
+            position: absolute;
+            left: ${Math.random() * 100}%;
+            top: 0;
+            width: ${4 + Math.random() * 3}px;
+            height: ${4 + Math.random() * 3}px;
+            border-radius: 50%;
+            background-color: rgba(173, 216, 230, 0.8);
+            box-shadow: 0 0 3px rgba(173, 216, 230, 0.6);
+            pointer-events: none;
+            z-index: 10;
+        `;
+        const duration = 8000 + Math.random() * 6000;
+        const drift = (Math.random() - 0.5) * 100;
+        flake.style.animationDuration = `${duration}ms`;
         flake.style.setProperty('--start-y', '0vh');
-        flake.style.setProperty('--drift', "".concat(drift, "px"));
+        flake.style.setProperty('--drift', `${drift}px`);
         previewBackground.appendChild(flake);
-        setTimeout(function () {
+        setTimeout(() => {
             if (previewBackground && flake.parentNode === previewBackground) {
                 previewBackground.removeChild(flake);
             }
@@ -453,7 +771,7 @@ function startSearchSnowfall() {
     };
     // Initial burst of snowflakes
     console.log('Creating initial 20 snowflakes...');
-    for (var i = 0; i < 20; i++) {
+    for (let i = 0; i < 20; i++) {
         setTimeout(createSnowflake, i * 200);
     }
     // Continuous snowfall
@@ -466,27 +784,27 @@ function startSearchSnowfall() {
 function createSearchSeagull() {
     if (!previewBackground)
         return;
-    var bird = document.createElement("img");
+    const bird = document.createElement("img");
     bird.src = birdFrames[0];
     bird.alt = "Seagull";
     bird.className = "search__seagull";
-    var size = 8 + Math.random() * 4;
-    var topPosition = 15 + Math.random() * 30;
-    var duration = 12 + Math.random() * 8;
-    bird.style.width = "".concat(size, "%");
-    bird.style.top = "".concat(topPosition, "%");
+    const size = 8 + Math.random() * 4;
+    const topPosition = 15 + Math.random() * 30;
+    const duration = 12 + Math.random() * 8;
+    bird.style.width = `${size}%`;
+    bird.style.top = `${topPosition}%`;
     bird.style.left = '-15%';
     bird.style.position = 'absolute';
-    bird.style.animationDuration = "".concat(duration, "s");
+    bird.style.animationDuration = `${duration}s`;
     previewBackground.appendChild(bird);
     // Animate sprite frames
-    var frameIndex = 0;
-    var spriteInterval = setInterval(function () {
+    let frameIndex = 0;
+    const spriteInterval = setInterval(() => {
         frameIndex = (frameIndex + 1) % birdFrames.length;
         bird.src = birdFrames[frameIndex];
     }, 100);
     // Remove after animation
-    setTimeout(function () {
+    setTimeout(() => {
         clearInterval(spriteInterval);
         if (bird.parentNode === previewBackground) {
             previewBackground.removeChild(bird);
@@ -498,14 +816,14 @@ function createSearchSeagull() {
  */
 function startSearchSeagulls() {
     createSearchSeagull();
-    searchBirdIntervalId = window.setInterval(function () {
+    searchBirdIntervalId = window.setInterval(() => {
         createSearchSeagull();
     }, 10000 + Math.random() * 8000);
 }
 /**
  * Initialize on page load
  */
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
     console.log('🌟 DOM Content Loaded!');
     console.log('📍 Current script version: SNOW-DEBUG-v2');
     // Always scroll to top on page load/refresh
@@ -520,8 +838,8 @@ document.addEventListener("DOMContentLoaded", function () {
     initSearchSection();
     // Scroll Hero CTA to Search with smooth behavior and audio crossfade
     if (heroCta) {
-        heroCta.addEventListener("click", function () {
-            var searchSection = document.getElementById("search");
+        heroCta.addEventListener("click", () => {
+            const searchSection = document.getElementById("search");
             if (searchSection) {
                 // Start audio crossfade immediately
                 crossfadeAudio('hero-to-search');
@@ -540,19 +858,19 @@ function crossfadeAudio(direction) {
     if (!heroAudio || !harborAudio)
         return;
     manualCrossfadeInProgress = true;
-    var fadeDuration = 1500; // 1.5 seconds
-    var steps = 30; // 30 steps = smooth transition
-    var stepDuration = fadeDuration / steps;
-    var currentStep = 0;
-    var fadeInterval = setInterval(function () {
+    const fadeDuration = 1500; // 1.5 seconds
+    const steps = 30; // 30 steps = smooth transition
+    const stepDuration = fadeDuration / steps;
+    let currentStep = 0;
+    const fadeInterval = setInterval(() => {
         currentStep++;
-        var progress = currentStep / steps; // 0.0 to 1.0
+        const progress = currentStep / steps; // 0.0 to 1.0
         if (direction === 'hero-to-search') {
             // Fade out hero
             heroAudio.volume = Math.max(0, 0.8 * (1 - progress));
             // Fade in harbor
             if (harborAudio.paused && experienceStarted) {
-                harborAudio.play().catch(function (err) { return console.log("Harbor audio play error:", err); });
+                harborAudio.play().catch(err => console.log("Harbor audio play error:", err));
             }
             harborAudio.volume = Math.min(0.8, 0.8 * progress);
             // Stop hero when fully faded
@@ -569,7 +887,7 @@ function crossfadeAudio(direction) {
             // Fade in hero
             if (heroAudio.paused && experienceStarted) {
                 heroAudio.currentTime = 0;
-                heroAudio.play().catch(function (err) { return console.log("Hero audio play error:", err); });
+                heroAudio.play().catch(err => console.log("Hero audio play error:", err));
             }
             heroAudio.volume = Math.min(0.8, 0.8 * progress);
             // Stop harbor when fully faded
@@ -591,22 +909,22 @@ function setupAudioTransitions() {
     // Set initial volumes
     heroAudio.volume = 0.8;
     harborAudio.volume = 0;
-    var heroSection = document.querySelector('.hero');
-    var searchSection = document.getElementById('search');
+    const heroSection = document.querySelector('.hero');
+    const searchSection = document.getElementById('search');
     if (!heroSection || !searchSection)
         return;
     // More threshold steps for smoother transitions (21 steps = every 5%)
-    var options = {
+    const options = {
         root: null,
         threshold: [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95, 1.0]
     };
     // Observer for Search section
-    var searchObserver = new IntersectionObserver(function (entries) {
-        entries.forEach(function (entry) {
+    const searchObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
             // Don't interfere if manual crossfade is in progress
             if (manualCrossfadeInProgress)
                 return;
-            var ratio = entry.intersectionRatio;
+            const ratio = entry.intersectionRatio;
             if (ratio > 0.05) {
                 // Search section becoming visible
                 // Fade out hero audio smoothly (stops at 0.3 ratio)
@@ -618,17 +936,17 @@ function setupAudioTransitions() {
                     }
                     else {
                         // Smooth fade out from 5% to 30%
-                        var fadeRatio = 1 - (ratio / 0.3); // 1.0 at 5%, 0.0 at 30%
+                        const fadeRatio = 1 - (ratio / 0.3); // 1.0 at 5%, 0.0 at 30%
                         heroAudio.volume = Math.max(0, 0.8 * fadeRatio);
                     }
                 }
                 // Start harbor audio and fade in smoothly
                 if (harborAudio.paused && experienceStarted) {
-                    harborAudio.play().catch(function (err) { return console.log("Harbor audio play error:", err); });
+                    harborAudio.play().catch(err => console.log("Harbor audio play error:", err));
                 }
                 // Smooth fade in from 5% to 60%
                 if (ratio <= 0.6) {
-                    var fadeInRatio = ratio / 0.6; // 0.0 at 5%, 1.0 at 60%
+                    const fadeInRatio = ratio / 0.6; // 0.0 at 5%, 1.0 at 60%
                     harborAudio.volume = Math.min(0.8, fadeInRatio * 0.8);
                 }
                 else {
@@ -644,12 +962,12 @@ function setupAudioTransitions() {
                 }
                 // Resume hero audio only if hero is visible and experience started
                 if (experienceStarted && heroAudio.paused) {
-                    var heroRect = heroSection.getBoundingClientRect();
-                    var heroVisible = heroRect.top < window.innerHeight && heroRect.bottom > 0;
+                    const heroRect = heroSection.getBoundingClientRect();
+                    const heroVisible = heroRect.top < window.innerHeight && heroRect.bottom > 0;
                     if (heroVisible) {
                         heroAudio.currentTime = 0; // Restart from beginning
                         heroAudio.volume = 0.8;
-                        heroAudio.play().catch(function (err) { return console.log("Hero audio play error:", err); });
+                        heroAudio.play().catch(err => console.log("Hero audio play error:", err));
                     }
                 }
             }
@@ -660,7 +978,7 @@ function setupAudioTransitions() {
 /**
  * Cleanup function
  */
-window.addEventListener("beforeunload", function () {
+window.addEventListener("beforeunload", () => {
     if (birdGenerationIntervalId !== null) {
         clearInterval(birdGenerationIntervalId);
     }
