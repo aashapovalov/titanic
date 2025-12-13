@@ -1159,6 +1159,202 @@ function setupAudioTransitions(): void {
     searchObserver.observe(searchSection);
 }
 
+// ============================================
+// API INTEGRATION FOR PREDICTIONS
+// ============================================
+
+/**
+ * Get embarked code for API
+ */
+function getEmbarkedCode(port: Port): number {
+    const map: Record<Port, number> = {
+        'southampton': 1,
+        'cherbourg': 2,
+        'queenstown': 3
+    };
+    return map[port];
+}
+
+/**
+ * Call prediction API
+ */
+async function getPrediction(passenger: PassengerState): Promise<number> {
+    try {
+        const response = await fetch('http://localhost:5001/predict', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                Pclass: passenger.ticketClass!,
+                gender_code: passenger.gender === 'female' ? 1 : 2,
+                Age: passenger.age!,
+                embarked_code: getEmbarkedCode(passenger.port!),
+                family_size: passenger.familySize || 1
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('📊 Prediction received:', data);
+        return data.survival_probability;
+
+    } catch (error) {
+        console.error('❌ Prediction failed:', error);
+
+        // Show error message to user
+        alert('Failed to get prediction. Please make sure the backend server is running at http://localhost:5001');
+
+        throw error;
+    }
+}
+
+// ============================================
+// RESULTS SECTION RENDERING
+// ============================================
+
+/**
+ * Show results section with prediction
+ */
+function showResultsSection(survivalProbability: number): void {
+    const resultsSection = document.getElementById('results');
+    if (!resultsSection) return;
+
+    const isHopeful = survivalProbability >= 0.5;
+    const percentage = Math.round(survivalProbability * 100);
+
+    console.log(`🎯 Showing results: ${percentage}% survival (${isHopeful ? 'HOPE' : 'SAD'} state)`);
+
+    // Render the results
+    renderResults(isHopeful, percentage);
+
+    // Show section
+    resultsSection.style.display = 'block';
+
+    // Scroll to results
+    setTimeout(() => {
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+/**
+ * Render results content based on outcome
+ */
+function renderResults(isHopeful: boolean, percentage: number): void {
+    // Get DOM elements
+    const skyBackground = document.querySelector('.results__background-sky') as HTMLElement;
+    const character = document.querySelector('.results__character') as HTMLImageElement;
+    const emphasis = document.querySelector('.results__emphasis') as HTMLElement;
+    const percentageEl = document.querySelector('.results__percentage') as HTMLElement;
+    const subtitle = document.querySelector('.results__subtitle') as HTMLElement;
+
+    if (!skyBackground || !character || !emphasis || !percentageEl || !subtitle) {
+        console.error('❌ Results DOM elements not found');
+        return;
+    }
+
+    // Set state-specific content
+    const state = isHopeful ? 'hope' : 'sad';
+
+    // Sky background (changes based on state)
+    skyBackground.className = `results__background-sky results__background-sky--${state}`;
+
+    // Character image (bottom right)
+    character.src = `src/public/images/results/results_passenger_${state}.png`;
+    character.alt = isHopeful ? 'Passenger in lifeboat' : 'Passenger on debris';
+
+    // Trigger character animation
+    setTimeout(() => {
+        character.classList.add('results__character--visible');
+    }, 300);
+
+    // Emphasis text (SURVIVE or NOT SURVIVE)
+    emphasis.textContent = isHopeful ? 'SURVIVE' : 'NOT SURVIVE';
+    emphasis.className = `results__emphasis results__emphasis--${state}`;
+
+    // Percentage
+    percentageEl.textContent = `Survival chance: ${percentage}%`;
+
+    // Subtitle
+    subtitle.textContent = isHopeful
+        ? 'Passengers with these characteristics had better odds of being rescued.'
+        : 'Passengers with these characteristics rarely made it to the lifeboats.';
+}
+
+/**
+ * Hide results section and return to search
+ */
+function hideResultsSection(): void {
+    const resultsSection = document.getElementById('results');
+    const searchSection = document.getElementById('search');
+
+    if (!resultsSection || !searchSection) return;
+
+    console.log('🔙 Returning to search section');
+
+    // Scroll to search
+    searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Hide results after scroll
+    setTimeout(() => {
+        resultsSection.style.display = 'none';
+
+        // Reset character animation
+        const character = document.querySelector('.results__character');
+        character?.classList.remove('results__character--visible');
+    }, 500);
+}
+
+// ============================================
+// WIRE UP CALCULATE BUTTON
+// ============================================
+
+// Get calculate button
+
+if (calculateButton) {
+    calculateButton.addEventListener('click', async () => {
+        console.log('🔢 Calculate button clicked');
+
+        // Validate form is complete
+        if (!isPassengerComplete(passengerState)) {
+            console.warn('⚠️ Form incomplete');
+            return;
+        }
+
+        // Show loading state
+        calculateButton.disabled = true;
+        calculateButton.textContent = 'Calculating...';
+
+        try {
+            // Get prediction from API
+            const probability = await getPrediction(passengerState);
+
+            // Show results
+            showResultsSection(probability);
+
+        } catch (error) {
+            console.error('Failed to calculate:', error);
+        } finally {
+            // Reset button
+            calculateButton.disabled = false;
+            calculateButton.textContent = 'Calculate My Chances';
+        }
+    });
+}
+
+// ============================================
+// WIRE UP TRY AGAIN BUTTON
+// ============================================
+
+// Add event listener for try again button (delegated)
+document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (target.id === 'try-again-btn') {
+        hideResultsSection();
+    }
+});
+
 /**
  * Cleanup function
  */
