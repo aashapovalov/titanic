@@ -1,9 +1,3 @@
-/**
- * Universal Snow Effect
- * Generates snowfall animation in any container
- * Reusable across Hero, Search, and Results sections
- */
-
 import { SnowConfig } from '../types/effects';
 
 export class SnowEffect {
@@ -21,9 +15,6 @@ export class SnowEffect {
         this.config = this.applyDefaults(config);
     }
 
-    /**
-     * Start generating snowflakes
-     */
     start(): void {
         this.stop(); // Clear any existing
         
@@ -36,9 +27,6 @@ export class SnowEffect {
         console.log(`🌨️ Snow effect started in ${this.getContainerId()}`);
     }
 
-    /**
-     * Stop snow generation and clear flakes
-     */
     stop(): void {
         if (this.intervalId) {
             clearInterval(this.intervalId);
@@ -48,9 +36,6 @@ export class SnowEffect {
         console.log(`❄️ Snow effect stopped in ${this.getContainerId()}`);
     }
 
-    /**
-     * Generate a single snowflake
-     */
     private generateFlake(): void {
         const flake = document.createElement('div');
         flake.className = this.config.className || 'snowflake';
@@ -92,9 +77,7 @@ export class SnowEffect {
         }, duration * 1000);
     }
 
-    /**
-     * Get animation duration based on configured speed
-     */
+
     private getDurationForSpeed(): number {
         const speedMap = {
             slow: { min: 10, max: 15 },
@@ -106,9 +89,7 @@ export class SnowEffect {
         return this.randomInRange(range.min, range.max);
     }
 
-    /**
-     * Apply default configuration values
-     */
+
     private applyDefaults(config: SnowConfig): SnowConfig {
         return {
             density: 'medium',
@@ -119,9 +100,6 @@ export class SnowEffect {
         };
     }
 
-    /**
-     * Resolve container from string selector or HTMLElement
-     */
     private resolveContainer(container: string | HTMLElement): HTMLElement {
         if (typeof container === 'string') {
             const element = document.querySelector(container) as HTMLElement;
@@ -133,16 +111,10 @@ export class SnowEffect {
         return container;
     }
 
-    /**
-     * Get container ID for logging
-     */
     private getContainerId(): string {
         return this.container.id || this.container.className || 'unknown';
     }
 
-    /**
-     * Generate random number in range
-     */
     private randomInRange(min: number, max: number): number {
         return Math.random() * (max - min) + min;
     }
