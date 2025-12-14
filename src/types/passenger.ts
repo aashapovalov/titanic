@@ -1,7 +1,3 @@
-/**
- * Passenger-related type definitions
- */
-
 import { Port, Gender, AgeBucket } from './index';
 
 export interface PassengerState {

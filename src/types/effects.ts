@@ -1,8 +1,3 @@
-/**
- * Effect system type definitions
- * Defines configurations for universal effect system
- */
-
 export interface BaseEffectConfig {
     container: string | HTMLElement;
     enabled?: boolean;
