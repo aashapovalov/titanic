@@ -1,0 +1,20 @@
+{
+  "name": "titanic-survival-simulator",
+  "version": "1.0.0",
+  "description": "Interactive Titanic survival prediction simulator",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.3.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.0"
+  },
+  "keywords": ["titanic", "simulator", "typescript", "ml"],
+  "author": "",
+  "license": "MIT"
+}
