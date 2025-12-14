@@ -1,5 +1,6 @@
 import { PassengerState, FamilyMember } from '../types/passenger';
 import { querySelector } from '../utils/dom';
+import { AgeBucket } from '../types';
 
 export class CharacterPreview {
     private container: HTMLElement;
@@ -78,7 +79,7 @@ export class CharacterPreview {
         return 'southampton'; // Default
     }
 
-    private getAgeBucket(age: number): string {
+    private getAgeBucket(age: number): AgeBucket {
         if (age <= 2) return 'baby';
         if (age <= 12) return 'child';
         if (age <= 25) return 'youngAdult';
