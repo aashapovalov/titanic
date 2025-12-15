@@ -47,9 +47,9 @@ export class BirdEffect {
         bird.src = this.config.frames[0];
         bird.alt = '';
 
-        // Position at right side, random height
+        // Position at left side, random height
         bird.style.position = 'absolute';
-        bird.style.right = '0';
+        bird.style.left = '-15%';
         bird.style.top = `${Math.random() * 40}%`;
 
         // Random size
@@ -89,7 +89,7 @@ export class BirdEffect {
     private animateSprite(bird: HTMLImageElement, duration: number): void {
         const frames = this.config.frames;
         const frameCount = frames.length;
-        const frameInterval = (duration * 1000) / (frameCount * 3); // Cycle frames 3 times
+        const frameInterval = (duration * 190) / (frameCount * 3); // Cycle frames 3 times
         
         let currentFrame = 0;
         
@@ -109,7 +109,7 @@ export class BirdEffect {
         
         // Slight delay for smooth start
         setTimeout(() => {
-            bird.style.transform = `translateX(-115vw) translateY(${Math.random() * 40 - 20}px)`;
+            bird.style.transform = `translateX(115vw) translateY(${Math.random() * 40 - 20}px)`;
         }, 50);
     }
 
