@@ -1,4 +1,3 @@
-import { Port } from '../types';
 
 // Age bucket definitions
 export const AGE_BUCKETS = {
@@ -7,13 +6,6 @@ export const AGE_BUCKETS = {
     youngAdult: { min: 13, max: 25 },
     adult: { min: 26, max: 59 },
     senior: { min: 60, max: 100 }
-};
-
-// Port backgrounds mapping
-export const PORT_BACKGROUNDS: Record<Port, string> = {
-    southampton: 'src/public/images/search/search_bg_southampton.png',
-    cherbourg: 'src/public/images/search/search_bg_cherbourg.png',
-    queenstown: 'src/public/images/search/search_bg_queenstown.png'
 };
 
 // API endpoint
