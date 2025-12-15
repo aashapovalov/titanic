@@ -3,9 +3,8 @@ import { audioManager } from '../core/AudioManager';
 import { stateManager } from '../core/StateManager';
 import { FamilyGenerator } from '../components/FamilyGenerator';
 import { CharacterPreview } from '../components/CharacterPreview';
-import { SEAGULL_IMAGES, AUDIO } from '../config/assets';
-import { PORT_BACKGROUNDS } from '../config/constants';
-import { getElementById, querySelector, querySelectorAll } from '../utils/dom';
+import { SEAGULL_IMAGES, AUDIO, PORT_BACKGROUNDS } from '../config/assets';
+import { getElementById, querySelectorAll } from '../utils/dom';
 
 export class SearchSection {
     private snowEffectId: string | null = null;
@@ -24,6 +23,22 @@ export class SearchSection {
 
         this.setupEffects();
         this.setupEventListeners();
+
+        // default port render
+        const state = stateManager.getState();
+        const port = state.port ?? 'southampton';
+
+        const defaultBtn = document.querySelector(
+            `[data-field="port"][data-value="${port}"]`
+        ) as HTMLElement | null;
+
+        if (defaultBtn) {
+            this.updateButtonGroup('[data-field="port"]', defaultBtn);
+        }
+
+        this.updatePreviewBackground(port);
+        this.updatePreview();
+        this.updateCalculateButton();
     }
 
     private setupEffects(): void {
@@ -36,12 +51,12 @@ export class SearchSection {
         }, 'search-snow');
 
         // Seagull effect
-        this.birdsEffectId = effectManager.start('birds', {
-            container: '#preview-seagulls',
-            frames: SEAGULL_IMAGES,
-            interval: 15000
-        }, 'search-seagulls');
-    }
+    //     this.birdsEffectId = effectManager.start('birds', {
+    //         container: '#preview-seagulls',
+    //         frames: SEAGULL_IMAGES,
+    //         interval: 15000
+    //     }, 'search-seagulls');
+     }
 
     private setupEventListeners(): void {
         // Port buttons
@@ -160,10 +175,18 @@ export class SearchSection {
         this.updateCalculateButton();
     }
 
-    private updatePreviewBackground(port: string): void {
-        const background = getElementById('preview-background');
-        if (background && PORT_BACKGROUNDS[port as keyof typeof PORT_BACKGROUNDS]) {
-            background.style.backgroundImage = `url('${PORT_BACKGROUNDS[port as keyof typeof PORT_BACKGROUNDS]}')`;
+    private updatePreviewBackground(port: string | null | undefined): void {
+        const background = getElementById<HTMLElement>('preview-background');
+        if (!background) return;
+
+        const key = port as keyof typeof PORT_BACKGROUNDS;
+
+        if (port && PORT_BACKGROUNDS[key]) {
+            background.style.backgroundImage = `url('${PORT_BACKGROUNDS[key]}')`;
+            background.classList.add('search__preview-background--visible');
+        } else {
+            background.style.backgroundImage = '';
+            background.classList.remove('search__preview-background--visible');
         }
     }
 
