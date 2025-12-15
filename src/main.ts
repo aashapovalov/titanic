@@ -41,8 +41,10 @@ function setupStartScreen(): void {
             console.log('🎬 Starting experience...');
             
             // Hide start screen
-            startScreen.style.display = 'none';
-            
+            document.body.classList.add('experience-started');
+            startScreen.classList.add('start-screen--hidden');
+            heroSection.setupAudio();
+
             // Show hero section (already initialized)
             console.log('✅ Experience started');
         });

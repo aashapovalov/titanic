@@ -14,9 +14,9 @@ export class HeroSection {
 
         // Setup effects
         this.setupSnow();
-       this.setupWaves();
+        this.setupWaves();
         this.setupBirds();
-        this.setupAudio();
+        // this.setupAudio();
         this.setupEventListeners();
     }
 
@@ -52,7 +52,7 @@ export class HeroSection {
         }, 'hero-birds');
     }
 
-    private setupAudio(): void {
+    public setupAudio(): void {
         audioManager.play(AUDIO.hero, false, 0.5);
     }
 
