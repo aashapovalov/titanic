@@ -5,18 +5,24 @@ import { SearchSection } from './sections/SearchSection';
 import { ResultsSection } from './sections/ResultsSection';
 import { getElementById } from './utils/dom';
 
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
 // Section instances
 let heroSection: HeroSection;
 let searchSection: SearchSection;
 let resultsSection: ResultsSection;
 
+
 function initializeApp(): void {
     console.log('🚀 Titanic Survival Simulator - Starting...');
+    scrollToHero();
 
     // Initialize sections
     heroSection = new HeroSection();
     searchSection = new SearchSection();
     resultsSection = new ResultsSection();
+
 
     // Initialize all sections
     heroSection.initialize();
@@ -76,6 +82,16 @@ function cleanup(): void {
     resultsSection?.cleanup();
 
     console.log('✅ Cleanup complete');
+}
+
+function scrollToHero(): void {
+    const hero = document.getElementById('hero');
+    if (!hero) return;
+
+    window.scrollTo(0, 0);
+    requestAnimationFrame(() => {
+        hero.scrollIntoView({ behavior: 'auto', block: 'start' });
+    });
 }
 
 if (document.readyState === 'loading') {
