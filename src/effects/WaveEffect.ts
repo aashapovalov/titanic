@@ -102,7 +102,7 @@ export class WaveEffect {
             animation: {
                 duration: { min: 4, max: 9 }
             },
-            className: 'wave-generated',
+            className: 'hero__wave hero__wave--generated',
             ...config
         };
     }

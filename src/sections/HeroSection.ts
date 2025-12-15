@@ -14,7 +14,7 @@ export class HeroSection {
 
         // Setup effects
         this.setupSnow();
-        this.setupWaves();
+       this.setupWaves();
         this.setupBirds();
         this.setupAudio();
         this.setupEventListeners();
@@ -32,12 +32,12 @@ export class HeroSection {
 
     private setupWaves(): void {
         this.wavesEffectId = effectManager.start('waves', {
-            container: '.hero__scene',
+            container: '#waves-layer',
             count: 40,
             images: WAVE_IMAGES,
             positioning: {
                 left: { min: 0, max: 100 },
-                bottom: { min: 10, max: 60 }
+                bottom: { min: 10, max: 90 }
             },
             zIndex: 2
         }, 'hero-waves');
