@@ -9,7 +9,7 @@
           name="description"
           content="Would YOU survive the Titanic? Pick your passenger parameters and see your survival chances using real data from the Kaggle Titanic dataset."
   />
-  <link rel="icon" href="src/public/favicon.ico" />
+  <link rel="icon" href="favicon.ico" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 
@@ -33,23 +33,23 @@
 
   <div class="hero__sea">
     <div class="hero__bg-iceberg-wrapper">
-      <img src="src/public/images/hero/hero_iceberg_bg.png" alt="Background iceberg" class="hero__bg-iceberg"/>
+      <img src="images/hero/hero_iceberg_bg.png" alt="Background iceberg" class="hero__bg-iceberg"/>
     </div>
 
     <div class="hero__bg-ship-trail-wrapper">
-      <img src="src/public/images/hero/hero_ship_bg_trail.png" alt="" class="hero__bg-ship-trail"/>
+      <img src="images/hero/hero_ship_bg_trail.png" alt="" class="hero__bg-ship-trail"/>
     </div>
 
     <div class="hero__bg-ship-wrapper">
-      <img src="src/public/images/hero/hero_ship_bg.png" alt="Background ship" class="hero__bg-ship"/>
+      <img src="images/hero/hero_ship_bg.png" alt="Background ship" class="hero__bg-ship"/>
     </div>
     <div class="hero__snow-layer" id="waves-layer"></div>
   </div>
 
   <div class="hero__scene">
-    <img src="src/public/images/hero/hero_ship_large.png" alt="Titanic" class="hero__ship-large floating-medium"/>
-    <img src="src/public/images/hero/hero_leo.png" alt="Leo passenger" class="hero__character hero__character--leo floating-fast"/>
-    <img src="src/public/images/hero/hero_kate.png" alt="Kate passenger" class="hero__character hero__character--kate floating-fast"/>
+    <img src="images/hero/hero_ship_large.png" alt="Titanic" class="hero__ship-large floating-medium"/>
+    <img src="images/hero/hero_leo.png" alt="Leo passenger" class="hero__character hero__character--leo floating-fast"/>
+    <img src="images/hero/hero_kate.png" alt="Kate passenger" class="hero__character hero__character--kate floating-fast"/>
     <div class="hero__snow-layer" id="snow-layer"></div>
   </div>
 
@@ -62,7 +62,7 @@
     </button>
   </div>
 
-  <audio id="hero-audio" src="src/public/audio/hero_soundtrack.mp3"></audio>
+  <audio id="hero-audio" src="audio/hero_soundtrack.mp3"></audio>
 </section>
 
 <section class="search" id="search">
@@ -109,7 +109,7 @@
                   data-value="male"
                   aria-label="Male"
           >
-            <img src="src/public/images/search/icons/icon_gender_man.png" alt="Male" class="search__icon-image" />
+            <img src="images/search/icons/icon_gender_man.png" alt="Male" class="search__icon-image" />
           </button>
           <button
                   type="button"
@@ -118,7 +118,7 @@
                   data-value="female"
                   aria-label="Female"
           >
-            <img src="src/public/images/search/icons/icon_gender_woman.png" alt="Female" class="search__icon-image" />
+            <img src="images/search/icons/icon_gender_woman.png" alt="Female" class="search__icon-image" />
           </button>
         </div>
       </div>
@@ -237,7 +237,7 @@
     </div>
   </div>
 
-  <audio id="harbor-audio" src="src/public/audio/search-sound.mp3" loop></audio>
+  <audio id="harbor-audio" src="audio/search-sound.mp3" loop></audio>
 </section>
 
 <section id="results" class="results" style="display: none;">
@@ -248,7 +248,7 @@
   </div>
 
   <img
-          src="src/public/images/results/results_titanic_sink.png"
+          src="images/results/results_titanic_sink.png"
           class="results__titanic"
           alt="Titanic sinking"
   >
@@ -280,7 +280,7 @@
   <div class="results__snow" id="results-snow"></div>
 </section>
 
-<script src="dist/bundle.js"></script>
+<script src="bundle.js"></script>
 </body>
 
 </html>

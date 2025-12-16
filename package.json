@@ -3,18 +3,26 @@
   "version": "1.0.0",
   "description": "Interactive Titanic survival prediction simulator",
   "scripts": {
-    "build": "webpack --mode production",
+    "build": "webpack && cp index.html dist/index.html && cp styles.css dist/styles.css && cp -R src/public/* dist/",
+    "watch": "webpack --watch",
+    "serve": "http-server dist -p 8080",
     "dev": "webpack --mode development --watch",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
+    "http-server": "^14.1.1",
     "ts-loader": "^9.5.0",
     "typescript": "^5.3.0",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.0"
   },
-  "keywords": ["titanic", "simulator", "typescript", "ml"],
+  "keywords": [
+    "titanic",
+    "simulator",
+    "typescript",
+    "ml"
+  ],
   "author": "",
   "license": "MIT"
 }
