@@ -43,18 +43,20 @@ export class CharacterPreview {
         const img = document.createElement('img');
         img.src = this.getCharacterImagePath(member);
         img.alt = `${member.gender} ${member.ageBucket}`;
-        img.className = 'search__preview-character';
+        img.className = 'search__character';
         
         // Position
+        img.style.position = 'absolute';
         img.style.left = `${member.position}%`;
+        img.style.bottom = '0';
         img.style.transform = 'translateX(-50%)';
-        
-        // Z-index for depth
         img.style.zIndex = String(member.zIndex);
-        
+        setTimeout(() => img.classList.add('search__character--visible'), 50);
+
+
         // Scale main character slightly larger
         if (member.isMainCharacter) {
-            img.style.transform = 'translateX(-50%) scale(1.1)';
+            img.style.transform = 'translateX(-50%)';
             img.classList.add('search__preview-character--main');
         }
 
