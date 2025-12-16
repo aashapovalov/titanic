@@ -24,8 +24,18 @@ export class SearchSection {
         this.setupEffects();
         this.setupEventListeners();
 
+        //set state to default age
+        const ageSlider = document.getElementById('age') as HTMLInputElement | null;
+        if (ageSlider) {
+            const age = parseInt(ageSlider.value, 10); // 30
+            stateManager.setField('age', age);
+        }
+
         // default port render
         const state = stateManager.getState();
+        if (state.port == null) {
+            stateManager.setField('port', 'southampton');
+        }
         const port = state.port ?? 'southampton';
 
         const defaultBtn = document.querySelector(
@@ -51,11 +61,11 @@ export class SearchSection {
         }, 'search-snow');
 
         // Seagull effect
-    //     this.birdsEffectId = effectManager.start('birds', {
-    //         container: '#preview-seagulls',
-    //         frames: SEAGULL_IMAGES,
-    //         interval: 15000
-    //     }, 'search-seagulls');
+        this.birdsEffectId = effectManager.start('birds', {
+            container: '#preview-seagulls',
+            frames: SEAGULL_IMAGES,
+            interval: 15000
+        }, 'search-seagulls');
      }
 
     private setupEventListeners(): void {
@@ -193,6 +203,8 @@ export class SearchSection {
     private updatePreview(): void {
         const state = stateManager.getState();
         this.characterPreview.update(state);
+        console.log('STATE', state);
+
     }
 
     private updatePreviewWithFamily(): void {
