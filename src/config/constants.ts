@@ -1,11 +1,11 @@
 
 // Age bucket definitions
 export const AGE_BUCKETS = {
-    baby: { min: 0, max: 2 },
-    child: { min: 3, max: 12 },
-    youngAdult: { min: 13, max: 25 },
-    adult: { min: 26, max: 59 },
-    senior: { min: 60, max: 100 }
+    baby: { min: 0, max: 5 },
+    child: { min: 5, max: 14 },
+    youngAdult: { min: 14, max: 30 },
+    adult: { min: 30, max: 50 },
+    senior: { min: 50, max: 80 }
 };
 
 // API endpoint

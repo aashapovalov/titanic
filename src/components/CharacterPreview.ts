@@ -1,3 +1,4 @@
+import { ageBucketToToken, getAgeBucket } from '../utils/calculations';
 import { PassengerState, FamilyMember } from '../types/passenger';
 import { querySelector } from '../utils/dom';
 import { AgeBucket } from '../types';
@@ -24,7 +25,7 @@ export class CharacterPreview {
             const mainCharacter: FamilyMember = {
                 gender: state.gender!,
                 age: state.age!,
-                ageBucket: this.getAgeBucket(state.age!),
+                ageBucket: getAgeBucket(state.age!),
                 ticketClass: state.ticketClass!,
                 position: 50, // Center
                 zIndex: 100,
@@ -61,30 +62,11 @@ export class CharacterPreview {
     }
 
     private getCharacterImagePath(member: FamilyMember): string {
-        // Get port from background or default to southampton
-        const port = this.getCurrentPort();
-        const { gender, ageBucket, ticketClass } = member;
-        
-        return `src/public/images/search/characters/${port}_${gender}_${ageBucket}_${ticketClass}.png`;
-    }
-
-    private getCurrentPort(): string {
-        const bgElement = querySelector('#preview-background');
-        if (bgElement) {
-            const bgImage = window.getComputedStyle(bgElement).backgroundImage;
-            if (bgImage.includes('southampton')) return 'southampton';
-            if (bgImage.includes('cherbourg')) return 'cherbourg';
-            if (bgImage.includes('queenstown')) return 'queenstown';
-        }
-        return 'southampton'; // Default
-    }
-
-    private getAgeBucket(age: number): AgeBucket {
-        if (age <= 2) return 'baby';
-        if (age <= 12) return 'child';
-        if (age <= 25) return 'youngAdult';
-        if (age <= 59) return 'adult';
-        return 'senior';
+            const genderToken = member.gender === 'male' ? 'm' : 'f';
+            const bucket = getAgeBucket(member.age);
+            const ageToken = ageBucketToToken(bucket);
+            const filename = `${genderToken}_${ageToken}_${member.ticketClass}.png`;
+            return `images/search/characters/${filename}`;
     }
 
     private canRenderMainCharacter(state: PassengerState): boolean {
