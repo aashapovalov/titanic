@@ -51,7 +51,7 @@ export class PredictionAPI {
     } {
         return {
             Pclass: state.ticketClass!,
-            gender_code: state.gender === 'male' ? 0 : 1,
+            gender_code: state.gender === 'female' ? 1 : 2,
             Age: state.age!,
             embarked_code: this.getEmbarkedCode(state.port!),
             family_size: state.travelWithFamily ? (state.familySize || 1) : 1
