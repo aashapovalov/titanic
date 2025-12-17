@@ -3,9 +3,8 @@ import { audioManager } from '../core/AudioManager';
 import { stateManager } from '../core/StateManager';
 import { FamilyGenerator } from '../components/FamilyGenerator';
 import { CharacterPreview } from '../components/CharacterPreview';
-import { SEAGULL_IMAGES, AUDIO, PORT_BACKGROUNDS } from '../config/assets';
+import { BIRD_FRAMES, AUDIO, PORT_BACKGROUNDS } from '../config/assets';
 import { getElementById, querySelectorAll } from '../utils/dom';
-import { AgeBucket } from "../types";
 import { getAgeBucket } from "../utils/calculations";
 
 export class SearchSection {
@@ -67,7 +66,7 @@ export class SearchSection {
         // Seagull effect
         this.birdsEffectId = effectManager.start('birds', {
             container: '#preview-seagulls',
-            frames: SEAGULL_IMAGES,
+            frames: BIRD_FRAMES,
             interval: 15000
         }, 'search-seagulls');
      }

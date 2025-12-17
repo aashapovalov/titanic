@@ -16,7 +16,6 @@ export class HeroSection {
         this.setupSnow();
         this.setupWaves();
         this.setupBirds();
-        // this.setupAudio();
         this.setupEventListeners();
     }
 

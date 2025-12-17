@@ -94,8 +94,8 @@ export class ResultsSection {
         const character = querySelector<HTMLImageElement>('.results__character');
         if (character) {
             character.src = isHopeful
-                ? 'src/public/images/results/results_passenger_hope.png'
-                : 'src/public/images/results/results_passenger_sad.png';
+                ? 'images/results/results_passenger_hope.png'
+                : 'images/results/results_passenger_sad.png';
             character.classList.add('results__character--visible');
         }
     }
