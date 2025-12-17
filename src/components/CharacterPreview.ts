@@ -43,7 +43,7 @@ export class CharacterPreview {
         const img = document.createElement('img');
         img.src = this.getCharacterImagePath(member);
         img.alt = `${member.gender} ${member.ageBucket}`;
-        img.className = 'search__character';
+        img.className = 'search__character--visible';
         
         // Position
         img.style.position = 'absolute';
@@ -51,14 +51,18 @@ export class CharacterPreview {
         img.style.bottom = '0';
         img.style.transform = 'translateX(-50%)';
         img.style.zIndex = String(member.zIndex);
-        setTimeout(() => img.classList.add('search__character--visible'), 50);
+        //setTimeout(() => img.classList.add('search__character--visible'), 50);
 
 
         // Scale main character slightly larger
         if (member.isMainCharacter) {
             img.style.transform = 'translateX(-50%)';
             img.classList.add('search__preview-character--main');
+            img.style.opacity = '1';
+        } else {
+            img.style.opacity = '0.8';
         }
+
 
         this.container.appendChild(img);
     }

@@ -19,7 +19,7 @@ export class FamilyGenerator {
         const positions = FAMILY_POSITIONS[familySize as keyof typeof FAMILY_POSITIONS];
 
         // main always first
-        const family: FamilyMember[] = [this.createMainCharacter(passenger, positions[0])];
+        let family: FamilyMember[] = [this.createMainCharacter(passenger, positions[0])];
 
         // if familySize is 1/undefined – just main (на всякий)
         if (!positions || familySize < 2) return family;
@@ -65,7 +65,7 @@ export class FamilyGenerator {
                 isMainCharacter: false,
             });
         });
-
+        family = this.applyFamilyLayoutByAgeBucket(family, positions);
         return family;
     }
 
@@ -156,16 +156,28 @@ export class FamilyGenerator {
         };
     }
 
-    private createFamilyMember(gender: Gender, age: number, ticketClass: number, position: number): FamilyMember {
-        return {
-            gender,
-            age,
-            ageBucket: getAgeBucket(age),
-            ticketClass,
-            position,
-            zIndex: calculateZIndex(position),
-            isMainCharacter: false
+    private applyFamilyLayoutByAgeBucket(family: FamilyMember[], positions: number[]): FamilyMember[] {
+        const bucketRank: Record<FamilyMember['ageBucket'], number> = {
+            baby: 0,
+            child: 1,
+            youngAdult: 2,
+            adult: 3,
+            senior: 4,
         };
+
+        const sorted = [...family].sort((a, b) => {
+            const r = bucketRank[a.ageBucket] - bucketRank[b.ageBucket];
+            if (r !== 0) return r;
+
+            // Tie-breaker: younger first if same bucket
+            return (a.age ?? 0) - (b.age ?? 0);
+        });
+
+        return sorted.map((member, idx) => ({
+            ...member,
+            position: positions[idx],
+            zIndex: 100 - idx,
+        }));
     }
 
     private randomGender(): Gender {
