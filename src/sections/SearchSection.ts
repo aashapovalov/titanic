@@ -5,6 +5,8 @@ import { FamilyGenerator } from '../components/FamilyGenerator';
 import { CharacterPreview } from '../components/CharacterPreview';
 import { SEAGULL_IMAGES, AUDIO, PORT_BACKGROUNDS } from '../config/assets';
 import { getElementById, querySelectorAll } from '../utils/dom';
+import { AgeBucket } from "../types";
+import { getAgeBucket } from "../utils/calculations";
 
 export class SearchSection {
     private snowEffectId: string | null = null;
@@ -12,6 +14,8 @@ export class SearchSection {
     private familyGenerator: FamilyGenerator;
     private characterPreview: CharacterPreview;
     private calculateButton: HTMLButtonElement | null = null;
+    private familyCache: any[] = [];
+    private familyKey: string | null = null;
 
     constructor() {
         this.familyGenerator = new FamilyGenerator();
@@ -201,26 +205,37 @@ export class SearchSection {
     }
 
     private updatePreview(): void {
-        const state = stateManager.getState();
-        this.characterPreview.update(state);
-        console.log('STATE', state);
-
+        this.updatePreviewWithFamily();
     }
 
     private updatePreviewWithFamily(): void {
         const state = stateManager.getState();
-        
-        if (state.travelWithFamily && state.familySize) {
-            try {
-                const family = this.familyGenerator.generate(state, state.familySize);
-                this.characterPreview.update(state, family);
-            } catch (error) {
-                console.error('Failed to generate family:', error);
-                this.characterPreview.update(state);
-            }
-        } else {
+        const familyEnabled = state.travelWithFamily && !!state.familySize;
+
+        if (!familyEnabled) {
+            this.familyCache = [];
+            this.familyKey = null;
             this.characterPreview.update(state);
+            return;
         }
+
+        if (!state.gender || state.age == null || !state.ticketClass) {
+            this.characterPreview.update(state);
+            return;
+        }
+        const ageBucket = getAgeBucket(state.age);
+        const key = `${state.gender}|${state.ticketClass}|${ageBucket}|${state.familySize}`;
+        if (this.familyKey !== key) {
+            this.familyKey = key;
+            try {
+                this.familyCache = this.familyGenerator.generate(state, state.familySize!);
+            } catch (e) {
+                console.error('Failed to generate family:', e);
+                this.familyCache = [];
+            }
+        }
+
+        this.characterPreview.update(state, this.familyCache as any);
     }
 
     private updateButtonGroup(selector: string, activeButton: HTMLElement): void {

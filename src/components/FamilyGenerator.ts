@@ -1,5 +1,5 @@
 import { PassengerState, FamilyMember } from '../types/passenger';
-import { Gender, AgeBucket } from '../types';
+import { Gender } from '../types';
 import { getAgeBucket, calculateZIndex, randomIntInRange } from '../utils/calculations';
 import { FAMILY_POSITIONS } from '../config/constants';
 
@@ -7,6 +7,7 @@ export class FamilyGenerator {
 
     generate(passenger: PassengerState, familySize: number): FamilyMember[] {
         if (!passenger.age || !passenger.gender || !passenger.ticketClass) {
+            console.warn('Cannot generate family: missing passenger data', passenger);
             throw new Error('Cannot generate family: missing passenger data');
         }
 
