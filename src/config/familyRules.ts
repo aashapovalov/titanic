@@ -314,7 +314,6 @@ export const SENIOR_RULES: FamilyScenarioRule[] = [
 
 // --------------------
 // Combined registry
-// (baby/child rules you already added earlier)
 // --------------------
 
 export const FAMILY_RULES: Record<AgeBucket, FamilyScenarioRule[]> = {

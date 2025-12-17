@@ -1,181 +1,148 @@
 import { PassengerState, FamilyMember } from '../types/passenger';
-import { Gender } from '../types';
+import {Gender, AgeBucket, FamilyMemberRule} from '../types';
 import { getAgeBucket, calculateZIndex, randomIntInRange } from '../utils/calculations';
-import { FAMILY_POSITIONS } from '../config/constants';
+import {AGE_BUCKETS, FAMILY_POSITIONS} from '../config/constants';
+import {FAMILY_RULES} from "../config/familyRules";
+
 
 export class FamilyGenerator {
+
+    // FamilyGenerator.ts (ключевые части)
 
     generate(passenger: PassengerState, familySize: number): FamilyMember[] {
         if (!passenger.age || !passenger.gender || !passenger.ticketClass) {
             console.warn('Cannot generate family: missing passenger data', passenger);
-            throw new Error('Cannot generate family: missing passenger data');
+            return [];
         }
 
         const ageBucket = getAgeBucket(passenger.age);
         const positions = FAMILY_POSITIONS[familySize as keyof typeof FAMILY_POSITIONS];
 
-        // Generate based on age bucket
-        let family: FamilyMember[];
-        
-        switch (ageBucket) {
-            case 'baby':
-                family = this.generateBabyFamily(passenger, familySize, positions);
-                break;
-            case 'child':
-                family = this.generateChildFamily(passenger, familySize, positions);
-                break;
-            case 'youngAdult':
-                family = this.generateYoungAdultFamily(passenger, familySize, positions);
-                break;
-            case 'adult':
-                family = this.generateAdultFamily(passenger, familySize, positions);
-                break;
-            case 'senior':
-                family = this.generateSeniorFamily(passenger, familySize, positions);
-                break;
+        // main always first
+        const family: FamilyMember[] = [this.createMainCharacter(passenger, positions[0])];
+
+        // if familySize is 1/undefined – just main (на всякий)
+        if (!positions || familySize < 2) return family;
+
+        const scenarios = (FAMILY_RULES[ageBucket] || []).filter(s => s.familySize === familySize);
+        if (!scenarios.length) return family;
+
+        const scenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+
+        // uniqueness tracking
+        const used = new Set<string>();
+        used.add(this.signatureFromMember(family[0]));
+
+        // special-case: two parents => force opposite genders
+        const parentRulesIdx = scenario.members
+            .map((m, idx) => ({ m, idx }))
+            .filter(x => x.m.role === 'parent')
+            .map(x => x.idx);
+
+        let forcedParentGenders: ('female' | 'male')[] | null = null;
+        if (parentRulesIdx.length >= 2) {
+            forcedParentGenders = ['female', 'male'];
         }
 
-        console.log(`👨‍👩‍👧‍👦 Generated family of ${familySize}:`, family);
-        return family;
-    }
+        let forcedParentCursor = 0;
 
-    private generateBabyFamily(passenger: PassengerState, size: number, positions: number[]): FamilyMember[] {
-        const family: FamilyMember[] = [];
+        // generate members described in rules
+        scenario.members.forEach((rule, i) => {
+            const pos = positions[i + 1]; // because positions[0] is main
 
-        // Main character (baby)
-        family.push(this.createMainCharacter(passenger, positions[0]));
+            const member = this.createMemberByRule(rule, passenger, used, () => {
+                if (!forcedParentGenders) return null;
+                if (rule.role !== 'parent') return null;
+                const g = forcedParentGenders[forcedParentCursor % forcedParentGenders.length];
+                forcedParentCursor += 1;
+                return g;
+            });
 
-        // Mother
-        if (size >= 2) {
-            family.push(this.createFamilyMember('female', randomIntInRange(25, 35), passenger.ticketClass!, positions[1]));
-        }
-
-        // Father
-        if (size >= 3) {
-            family.push(this.createFamilyMember('male', randomIntInRange(27, 37), passenger.ticketClass!, positions[2]));
-        }
-
-        // Sibling
-        if (size >= 4) {
-            family.push(this.createFamilyMember(this.randomGender(), randomIntInRange(3, 8), passenger.ticketClass!, positions[3]));
-        }
-
-        return family;
-    }
-
-    private generateChildFamily(passenger: PassengerState, size: number, positions: number[]): FamilyMember[] {
-        const family: FamilyMember[] = [];
-
-        // Main character (child)
-        family.push(this.createMainCharacter(passenger, positions[0]));
-
-        // Mother
-        if (size >= 2) {
-            family.push(this.createFamilyMember('female', passenger.age! + randomIntInRange(25, 35), passenger.ticketClass!, positions[1]));
-        }
-
-        // Father
-        if (size >= 3) {
-            family.push(this.createFamilyMember('male', passenger.age! + randomIntInRange(27, 37), passenger.ticketClass!, positions[2]));
-        }
-
-        // Sibling
-        if (size >= 4) {
-            const siblingAge = Math.max(0, passenger.age! + randomIntInRange(-5, 5));
-            family.push(this.createFamilyMember(this.randomGender(), siblingAge, passenger.ticketClass!, positions[3]));
-        }
+            family.push({
+                ...member,
+                position: pos,
+                zIndex: calculateZIndex(pos),
+                isMainCharacter: false,
+            });
+        });
 
         return family;
     }
 
-    private generateYoungAdultFamily(passenger: PassengerState, size: number, positions: number[]): FamilyMember[] {
-        const family: FamilyMember[] = [];
+    private createMemberByRule(
+        rule: FamilyMemberRule,
+        main: PassengerState,
+        used: Set<string>,
+        getForcedGender: () => Gender | null
+    ): Omit<FamilyMember, 'position' | 'zIndex' | 'isMainCharacter'> {
+        const ticketClass = main.ticketClass!;
 
-        // Main character
-        family.push(this.createMainCharacter(passenger, positions[0]));
+        // resolve candidate genders / buckets
+        const forced = getForcedGender();
+        const gender = forced ?? this.resolveGender(rule.gender, main.gender!);
+        const bucket = this.resolveAgeBucket(rule.ageGroup);
+        const age = this.randomAgeInBucket(bucket);
 
-        const hasSpouse = Math.random() > 0.7; // 30% chance of spouse
+        const candidate = {
+            gender,
+            ageBucket: bucket,
+            age,
+            ticketClass,
+        };
 
-        if (hasSpouse && size >= 2) {
-            // Spouse
-            const oppositeGender = passenger.gender === 'male' ? 'female' : 'male';
-            family.push(this.createFamilyMember(oppositeGender, passenger.age! + randomIntInRange(-3, 3), passenger.ticketClass!, positions[1]));
+        const uniqueness = rule.uniqueness ?? 'strict';
+        const allowDup =
+            uniqueness === 'allowDuplicateChance' && Math.random() < (rule.duplicateChance ?? 0);
 
-            // Child
-            if (size >= 3) {
-                family.push(this.createFamilyMember(this.randomGender(), randomIntInRange(0, 5), passenger.ticketClass!, positions[2]));
-            }
-        } else {
-            // Parent
-            if (size >= 2) {
-                family.push(this.createFamilyMember('female', passenger.age! + randomIntInRange(25, 35), passenger.ticketClass!, positions[1]));
+        if (allowDup) return candidate;
+
+        // strict uniqueness with retries
+        const maxTries = 20;
+        for (let t = 0; t < maxTries; t++) {
+            const sig = this.signatureFromParts(candidate.gender, candidate.ageBucket, ticketClass);
+            if (!used.has(sig)) {
+                used.add(sig);
+                return candidate;
             }
 
-            // Sibling or other parent
-            if (size >= 3) {
-                family.push(this.createFamilyMember(this.randomGender(), passenger.age! + randomIntInRange(-8, 8), passenger.ticketClass!, positions[2]));
-            }
+            // reroll (gender may be fixed by rule)
+            const g2 = forced ?? (rule.gender === 'random' ? this.randomGender() : gender);
+            const b2 = this.resolveAgeBucket(rule.ageGroup);
+            candidate.gender = g2;
+            candidate.ageBucket = b2;
+            candidate.age = this.randomAgeInBucket(b2);
         }
 
-        // Additional sibling
-        if (size >= 4) {
-            family.push(this.createFamilyMember(this.randomGender(), passenger.age! + randomIntInRange(-10, 10), passenger.ticketClass!, positions[3]));
-        }
-
-        return family;
+        // fallback: return even if duplicate (лучше показать семью, чем сломать UI)
+        return candidate;
     }
 
-    private generateAdultFamily(passenger: PassengerState, size: number, positions: number[]): FamilyMember[] {
-        const family: FamilyMember[] = [];
-
-        // Main character
-        family.push(this.createMainCharacter(passenger, positions[0]));
-
-        // Spouse
-        if (size >= 2) {
-            const oppositeGender = passenger.gender === 'male' ? 'female' : 'male';
-            family.push(this.createFamilyMember(oppositeGender, passenger.age! + randomIntInRange(-5, 5), passenger.ticketClass!, positions[1]));
-        }
-
-        // Children
-        if (size >= 3) {
-            const childAge = Math.max(0, passenger.age! - randomIntInRange(20, 30));
-            family.push(this.createFamilyMember(this.randomGender(), childAge, passenger.ticketClass!, positions[2]));
-        }
-
-        if (size >= 4) {
-            const childAge = Math.max(0, passenger.age! - randomIntInRange(15, 25));
-            family.push(this.createFamilyMember(this.randomGender(), childAge, passenger.ticketClass!, positions[3]));
-        }
-
-        return family;
+    private resolveGender(rule: 'sameAsMain' | 'oppositeToMain' | 'random', mainGender: Gender): Gender {
+        if (rule === 'sameAsMain') return mainGender;
+        if (rule === 'oppositeToMain') return mainGender === 'male' ? 'female' : 'male';
+        return this.randomGender();
     }
 
-    private generateSeniorFamily(passenger: PassengerState, size: number, positions: number[]): FamilyMember[] {
-        const family: FamilyMember[] = [];
-
-        // Main character
-        family.push(this.createMainCharacter(passenger, positions[0]));
-
-        // Spouse
-        if (size >= 2) {
-            const oppositeGender = passenger.gender === 'male' ? 'female' : 'male';
-            family.push(this.createFamilyMember(oppositeGender, passenger.age! + randomIntInRange(-5, 5), passenger.ticketClass!, positions[1]));
+    private resolveAgeBucket(ageGroup: AgeBucket | AgeBucket[]): AgeBucket {
+        if (Array.isArray(ageGroup)) {
+            return ageGroup[Math.floor(Math.random() * ageGroup.length)];
         }
-
-        // Adult children
-        if (size >= 3) {
-            const childAge = passenger.age! - randomIntInRange(25, 35);
-            family.push(this.createFamilyMember(this.randomGender(), childAge, passenger.ticketClass!, positions[2]));
-        }
-
-        if (size >= 4) {
-            const childAge = passenger.age! - randomIntInRange(30, 40);
-            family.push(this.createFamilyMember(this.randomGender(), childAge, passenger.ticketClass!, positions[3]));
-        }
-
-        return family;
+        return ageGroup;
     }
+
+    private randomAgeInBucket(bucket: AgeBucket): number {
+        const range = AGE_BUCKETS[bucket];
+        return randomIntInRange(range.min, range.max);
+    }
+
+    private signatureFromMember(m: FamilyMember): string {
+        return this.signatureFromParts(m.gender, m.ageBucket, m.ticketClass);
+    }
+
+    private signatureFromParts(g: Gender, b: AgeBucket, c: number): string {
+        return `${g}_${b}_${c}`;
+    }
+
 
     private createMainCharacter(passenger: PassengerState, position: number): FamilyMember {
         return {
