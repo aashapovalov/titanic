@@ -106,9 +106,9 @@ if __name__ == '__main__':
     print("\n" + "="*50)
     print("🚢 TITANIC SURVIVAL PREDICTION API")
     print("="*50)
-    print(f"📍 Server running at: http://localhost:5000")
+    print(f"📍 Server running at: http://localhost:5001")
     print(f"📊 Model loaded: {model is not None}")
-    print(f"🔗 Prediction endpoint: POST http://localhost:5000/predict")
+    print(f"🔗 Prediction endpoint: POST http://localhost:5001/predict")
     print("="*50 + "\n")
 
-    app.run(debug=True, port=5001, host='0.0.0.0')
+app.run(host='0.0.0.0', port=5001, debug=True, use_reloader=False)
